@@ -15,6 +15,15 @@ class RandomizationListImportError(Exception):
 
 
 def import_randomization_list(path=None):
+    """Imports CSV.
+
+    Format:
+        sid,drug_assigment,site
+        1,single_dose,40
+        2,two_doses,40
+        ...
+    """
+
     path = path or os.path.join(
         settings.BASE_DIR, 'test_randomization_list.csv')
     if RandomizationList.objects.all().count() > 0:
