@@ -1,25 +1,18 @@
-import csv
-import os
-
 from django.test import TestCase
-from django.conf import settings
 from edc_registration.models import RegisteredSubject
 
 from ..models import RandomizationList, SubjectRandomization
 from ..randomizer import Randomizer, RandomizationError
 from ..randomizer import SidListError, DuplicateRandomizationAttempt
 from .models import SubjectConsent
+from ..import_randomization_list import import_randomization_list
 
 
 class TestRandomizer(TestCase):
 
     def populate_list(self):
         RandomizationList.objects.all().delete()
-        path = os.path.join(settings.BASE_DIR, 'test_randomization_list.csv')
-        with open(path, 'r') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                RandomizationList.objects.create(**row)
+        import_randomization_list()
 
     def test_with_consent_no_site(self):
         subject_consent = SubjectConsent.objects.create(
