@@ -21,8 +21,7 @@ class SubjectRandomization(BaseUuidModel):
         verbose_name='SID',
         unique=True)
 
-    rx = EncryptedCharField(
-        verbose_name="Treatment Assignment")
+    rx = EncryptedCharField()
 
     subject_identifier = models.CharField(
         max_length=25)

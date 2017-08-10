@@ -1,4 +1,5 @@
 from django.db import models
+from django_crypto_fields.fields import EncryptedCharField
 from edc_base.model_mixins import BaseUuidModel
 
 
@@ -18,7 +19,7 @@ class RandomizationList(BaseUuidModel):
 
     sid = models.IntegerField(unique=True)
 
-    drug_assigment = models.CharField(max_length=25)
+    drug_assigment = EncryptedCharField()
 
     site = models.CharField(max_length=25)
 
