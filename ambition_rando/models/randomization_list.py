@@ -41,6 +41,8 @@ class RandomizationList(BaseUuidModel):
     def natural_key(self):
         return (self.sid, )
 
+    objects = RandomizationListManager()
+
     class Meta:
         ordering = ('sid', )
         unique_together = ('subject_identifier', 'sid')
