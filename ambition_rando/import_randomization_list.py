@@ -14,7 +14,7 @@ class RandomizationListImportError(Exception):
     pass
 
 
-def import_randomization_list(path=None):
+def import_randomization_list(path=None, verbose=None):
     """Imports CSV.
 
     Format:
@@ -24,6 +24,7 @@ def import_randomization_list(path=None):
         ...
     """
 
+    verbose = True if verbose is None else verbose
     path = path or os.path.join(
         settings.BASE_DIR, 'test_randomization_list.csv')
     if RandomizationList.objects.all().count() > 0:
@@ -34,5 +35,6 @@ def import_randomization_list(path=None):
         for row in reader:
             RandomizationList.objects.create(**row)
     count = RandomizationList.objects.all().count()
-    sys.stdout.write(style.SUCCESS(
-        f'(*) Imported {count} SIDs from {path}.\n'))
+    if verbose:
+        sys.stdout.write(style.SUCCESS(
+            f'(*) Imported {count} SIDs from {path}.\n'))
