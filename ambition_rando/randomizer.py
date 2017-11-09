@@ -45,6 +45,12 @@ class Randomizer:
         """
         return self.history_obj.sid
 
+    def check_sid_model(self):
+        if self.sid_model_cls.objects.all().count() == 0:
+            raise SidListError(
+                f'Randomization list has not been loaded. '
+                f'Run the management command.')
+
     def randomize(self):
         """Returns a history model instance after selecting
         the next available SID.
@@ -88,6 +94,11 @@ class Randomizer:
         """Gets the next available SID (sid_obj) or raises.
         """
         sid_obj = None
+        self.check_sid_model()
+        if self.sid_model_cls.objects.all().count() == 0:
+            raise SidListError(
+                f'Randomization list has not been loaded. '
+                f'Run the management command.')
         try:
             self.sid_model_cls.objects.get(
                 subject_identifier=self.subject_identifier)

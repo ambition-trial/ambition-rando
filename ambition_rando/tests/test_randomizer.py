@@ -1,11 +1,11 @@
 from django.test import TestCase
 from edc_registration.models import RegisteredSubject
 
+from ..import_randomization_list import import_randomization_list
 from ..models import RandomizationList, SubjectRandomization
 from ..randomizer import Randomizer, RandomizationError
 from ..randomizer import SidListError, DuplicateRandomizationAttempt
 from .models import SubjectConsent
-from ..import_randomization_list import import_randomization_list
 
 
 class TestRandomizer(TestCase):
