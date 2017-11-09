@@ -14,7 +14,7 @@ class RandomizationListImportError(Exception):
     pass
 
 
-def import_randomization_list(path=None, verbose=None):
+def import_randomization_list(path=None, verbose=None, overwrite=None):
     """Imports CSV.
 
     Format:
@@ -27,6 +27,8 @@ def import_randomization_list(path=None, verbose=None):
     verbose = True if verbose is None else verbose
     path = path or os.path.join(
         settings.BASE_DIR, 'test_randomization_list.csv')
+    if overwrite:
+        RandomizationList.objects.all().delete()
     if RandomizationList.objects.all().count() > 0:
         raise RandomizationListImportError(
             'Not importing CSV. RandomizationList model is not empty!')

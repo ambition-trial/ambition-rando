@@ -18,10 +18,13 @@ class DuplicateRandomizationAttempt(ValidationError):
     pass
 
 
+app_config = django_apps.get_app_config('ambition_rando')
+
+
 class Randomizer:
 
-    sid_model = 'ambition_rando.randomizationlist'
-    history_model = 'ambition_rando.subjectrandomization'
+    sid_model = app_config.sid_list_model
+    history_model = app_config.history_model
 
     def __init__(self, subject_consent=None, randomization_datetime=None):
         self.history_obj = None

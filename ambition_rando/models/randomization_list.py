@@ -35,13 +35,13 @@ class RandomizationList(BaseUuidModel):
 
     verified_user = models.CharField(max_length=50, null=True)
 
+    objects = RandomizationListManager()
+
     def __str__(self):
         return f'{self.sid} subject={self.subject_identifier}'
 
     def natural_key(self):
         return (self.sid, )
-
-    objects = RandomizationListManager()
 
     class Meta:
         ordering = ('sid', )
