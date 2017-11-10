@@ -9,4 +9,4 @@ class AppConfig(DjangoAppConfig):
     sid_list_model = 'ambition_rando.randomizationlist'
     history_model = 'ambition_rando.subjectrandomization'
     randomization_list_path = os.path.join(
-        settings.ETC_DIR, settings.APP_NAME, 'randomization_list.csv')
+        settings.ETC_DIR, 'randomization_list.csv')
