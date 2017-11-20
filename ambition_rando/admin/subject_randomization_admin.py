@@ -4,12 +4,12 @@ from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_fieldsets import FieldsetsModelAdminMixin
-from edc_base.modeladmin_mixins import (
+from edc_model_admin import (
     ModelAdminNextUrlRedirectMixin, ModelAdminFormInstructionsMixin,
     ModelAdminFormAutoNumberMixin, ModelAdminAuditFieldsMixin,
     ModelAdminReadOnlyMixin, ModelAdminInstitutionMixin,
     FormAsJSONModelAdminMixin, ModelAdminRedirectOnDeleteMixin)
-from edc_base.modeladmin_mixins import audit_fieldset_tuple
+from edc_model_admin import audit_fieldset_tuple
 from edc_visit_tracking.modeladmin_mixins import (
     CrfModelAdminMixin as VisitTrackingCrfModelAdminMixin)
 
