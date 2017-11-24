@@ -3,7 +3,7 @@ import os
 from django.apps import apps as django_apps
 from django.core.management.base import BaseCommand, CommandError
 
-from ...import_randomization_list import import_randomization_list
+from ...import_randomization_list import import_randomization_list, RandomizationListImportError
 
 
 class Command(BaseCommand):
@@ -31,4 +31,7 @@ class Command(BaseCommand):
         if not os.path.exists(path or ''):
             raise CommandError(f'Invalid path. Got {path}')
         overwrite = options['overwrite'] if options['overwrite'] == 'YES' else None
-        import_randomization_list(path=path, overwrite=overwrite)
+        try:
+            import_randomization_list(path=path, overwrite=overwrite)
+        except RandomizationListImportError as e:
+            raise CommandError(e)
