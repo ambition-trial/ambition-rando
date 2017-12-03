@@ -40,6 +40,10 @@ class RandomizationList(BaseUuidModel):
     def __str__(self):
         return f'{self.sid} subject={self.subject_identifier}'
 
+    @property
+    def short_label(self):
+        return (f'{self.drug_assigment} SID:{self.sid}')
+
     def natural_key(self):
         return (self.sid, )
 
