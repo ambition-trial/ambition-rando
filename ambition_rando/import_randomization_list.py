@@ -14,19 +14,20 @@ class RandomizationListImportError(Exception):
     pass
 
 
-def import_randomization_list(path=None, verbose=None, overwrite=None):
+def import_randomization_list(path=None, verbose=None, overwrite=None, filename=None):
     """Imports CSV.
 
     Format:
-        sid,drug_assigment,site
+        sid,drug_assignment,site
         1,single_dose,40
         2,two_doses,40
         ...
     """
 
     verbose = True if verbose is None else verbose
-    path = path or os.path.join(
-        settings.BASE_DIR, 'test_randomization_list.csv')
+    filename = filename or settings.BASE_DIR or 'test_randomization_list.csv'
+    path = os.path.expanduser(path)
+    path = os.path.join(path, filename)
     if overwrite:
         RandomizationList.objects.all().delete()
     if RandomizationList.objects.all().count() > 0:

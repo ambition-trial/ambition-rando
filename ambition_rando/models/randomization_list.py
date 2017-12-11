@@ -2,6 +2,10 @@ from django.db import models
 from django_crypto_fields.fields import EncryptedCharField
 from edc_base.model_mixins import BaseUuidModel
 
+from ..constants import CONTROL, CONTROL_NAME, SINGLE_DOSE, SINGLE_DOSE_NAME
+from ..randomizer import RandomizationError
+from edc_base.model_managers.historical_records import HistoricalRecords
+
 
 class RandomizationListManager(models.Manager):
 
@@ -19,7 +23,7 @@ class RandomizationList(BaseUuidModel):
 
     sid = models.IntegerField(unique=True)
 
-    drug_assigment = EncryptedCharField()
+    drug_assignment = EncryptedCharField()
 
     site = models.CharField(max_length=25)
 
@@ -37,16 +41,27 @@ class RandomizationList(BaseUuidModel):
 
     objects = RandomizationListManager()
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return f'{self.sid} subject={self.subject_identifier}'
 
     @property
     def short_label(self):
-        return (f'{self.drug_assigment} SID:{self.sid}')
+        return (f'{self.drug_assignment} SID:{self.sid}')
+
+    @property
+    def treatment_description(self):
+        if self.drug_assignment == CONTROL:
+            return CONTROL_NAME
+        elif self.drug_assignment == SINGLE_DOSE:
+            return SINGLE_DOSE_NAME
+        raise RandomizationError(
+            f'Invalid drug assignment. Got {self.drug_assignment}')
 
     def natural_key(self):
         return (self.sid, )
 
     class Meta:
-        ordering = ('sid', )
+        ordering = ('site', 'sid', )
         unique_together = ('subject_identifier', 'sid')

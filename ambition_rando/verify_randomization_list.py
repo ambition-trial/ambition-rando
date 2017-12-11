@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 def verify_randomization_list():
     message = None
     app_config = django_apps.get_app_config('ambition_rando')
-    model_cls = django_apps.get_model(app_config.sid_list_model)
+    model_cls = django_apps.get_model(app_config.randomization_list_model)
     if model_cls.objects.all().count() == 0:
         message = (
             'Randomization list has not been loaded. '
@@ -25,7 +25,7 @@ def verify_randomization_list():
         else:
             with open(app_config.randomization_list_path) as f:
                 reader = csv.DictReader(
-                    f, fieldnames=['sid', 'drug_assigment', 'site'])
+                    f, fieldnames=['sid', 'drug_assignment', 'site'])
                 for index, row in enumerate(reader):
                     if index == 0:
                         continue
