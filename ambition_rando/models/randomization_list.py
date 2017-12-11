@@ -1,10 +1,10 @@
 from django.db import models
 from django_crypto_fields.fields import EncryptedCharField
 from edc_base.model_mixins import BaseUuidModel
+from edc_base.model_managers import HistoricalRecords
 
 from ..constants import CONTROL, CONTROL_NAME, SINGLE_DOSE, SINGLE_DOSE_NAME
 from ..randomizer import RandomizationError
-from edc_base.model_managers.historical_records import HistoricalRecords
 
 
 class RandomizationListManager(models.Manager):
