@@ -33,8 +33,9 @@ def verify_randomization_list():
                         model_cls.objects.get(sid=row['sid'])
                     except ObjectDoesNotExist:
                         message = (
-                            f'Randomization list is INVALID. File data does not match model data. '
-                            f'See file {app_config.randomization_list_path}. '
+                            f'Randomization list is INVALID. File data '
+                            f'does not match model data. See file '
+                            f'{app_config.randomization_list_path}. '
                             f'Resolve this issue before using the system.')
                         break
                     else:

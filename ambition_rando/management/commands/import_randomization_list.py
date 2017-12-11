@@ -3,7 +3,8 @@ import os
 from django.apps import apps as django_apps
 from django.core.management.base import BaseCommand, CommandError
 
-from ...import_randomization_list import import_randomization_list, RandomizationListImportError
+from ...import_randomization_list import import_randomization_list
+from ...import_randomization_list import RandomizationListImportError
 
 
 class Command(BaseCommand):
@@ -15,7 +16,8 @@ class Command(BaseCommand):
             '--path',
             dest='path',
             default=None,
-            help=('full path to CSV file. Default: app_config.randomization_list_path'),
+            help=('full path to CSV file. Default: app_config.'
+                  'randomization_list_path'),
         )
 
         parser.add_argument(
