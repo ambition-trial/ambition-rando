@@ -17,6 +17,10 @@ class AlreadyRandomized(ValidationError):
     pass
 
 
+class AllocationError(Exception):
+    pass
+
+
 app_config = django_apps.get_app_config('ambition_rando')
 
 
@@ -65,7 +69,7 @@ class Randomizer:
                     subject_identifier__isnull=True,
                     site=self.study_site).order_by('sid').first()
                 if not self._model_obj:
-                    raise RandomizationListError(
+                    raise AllocationError(
                         f'Randomization failed. No additional SIDs available for '
                         f'site \'{self.study_site}\'.')
             else:
