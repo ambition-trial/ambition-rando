@@ -277,9 +277,9 @@ class TestRandomizer(TestCase):
         self.assertIn('Randomization list has not been loaded', message)
 
         # populate
-        path1, filename1 = make_test_list(count=5)
-        import_randomization_list(
-            path=path1, filename=filename1, overwrite=True)
+        path, filename = make_test_list(count=5)
+        path1 = os.path.join(path, filename)
+        import_randomization_list(path=path1, overwrite=True)
         self.assertEqual(RandomizationList.objects.all().count(), 5)
 
         # set to invalid path
@@ -298,15 +298,16 @@ class TestRandomizer(TestCase):
         self.assertIn('Randomization list is INVALID', message or '')
 
         # change to a different starting SID
-        path2, filename2 = make_test_list(count=5, first_sid=100)
+        path, filename = make_test_list(count=5, first_sid=100)
+        path2 = os.path.join(path, filename)
         django_apps.app_configs[
-            'ambition_rando'].randomization_list_path = os.path.join(path2, filename2)
+            'ambition_rando'].randomization_list_path = os.path.join(path2)
         message = verify_randomization_list()
         self.assertIn('Randomization list has INVALID SIDs', message or '')
 
         # change to a different starting SID
         django_apps.app_configs[
-            'ambition_rando'].randomization_list_path = os.path.join(path1, filename1)
+            'ambition_rando'].randomization_list_path = os.path.join(path1)
         message = verify_randomization_list()
         self.assertIsNone(message)
 

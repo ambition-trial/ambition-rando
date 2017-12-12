@@ -14,7 +14,7 @@ class RandomizationListImportError(Exception):
     pass
 
 
-def import_randomization_list(path=None, verbose=None, overwrite=None, filename=None):
+def import_randomization_list(path=None, verbose=None, overwrite=None):
     """Imports CSV.
 
     Format:
@@ -25,9 +25,9 @@ def import_randomization_list(path=None, verbose=None, overwrite=None, filename=
     """
 
     verbose = True if verbose is None else verbose
-    filename = filename or settings.BASE_DIR or 'test_randomization_list.csv'
+    path = path or os.path.join(
+        settings.BASE_DIR, 'test_randomization_list.csv')
     path = os.path.expanduser(path)
-    path = os.path.join(path, filename)
     if overwrite:
         RandomizationList.objects.all().delete()
     if RandomizationList.objects.all().count() > 0:
