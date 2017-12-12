@@ -13,6 +13,10 @@ class TreatmentModelWrapperMixin:
             subject_identifier=self.object.subject_identifier)
         return obj.treatment_description
 
+    @property
+    def regimen(self):
+        return self.treatment_description
+
 
 class TreatmentContextMixin(ContextMixin):
 
