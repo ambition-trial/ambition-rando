@@ -23,7 +23,10 @@ class RandomizationList(BaseUuidModel):
 
     sid = models.IntegerField(unique=True)
 
-    drug_assignment = EncryptedCharField()
+    drug_assignment = EncryptedCharField(
+        choices=(
+            (SINGLE_DOSE, SINGLE_DOSE_NAME),
+            (CONTROL, CONTROL_NAME)))
 
     site = models.CharField(max_length=25)
 

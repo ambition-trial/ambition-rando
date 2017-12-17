@@ -18,7 +18,8 @@ class TestRandomizer(TestCase):
 
     def populate_list(self):
         path, filename = make_test_list()
-        import_randomization_list(path=path, filename=filename, overwrite=True)
+        path = os.path.join(path, filename)
+        import_randomization_list(path=path, overwrite=True)
 
     def test_with_consent_no_site(self):
         subject_consent = SubjectConsent.objects.create(
