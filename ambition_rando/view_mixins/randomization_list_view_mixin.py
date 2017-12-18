@@ -2,23 +2,7 @@ from django.apps import apps as django_apps
 from django.views.generic.base import ContextMixin
 
 
-class TreatmentModelWrapperMixin:
-
-    randomization_list_model = 'ambition_rando.randomizationlist'
-
-    @property
-    def treatment_description(self):
-        model_cls = django_apps.get_model(self.randomization_list_model)
-        obj = model_cls.objects.get(
-            subject_identifier=self.object.subject_identifier)
-        return obj.treatment_description
-
-    @property
-    def regimen(self):
-        return self.treatment_description
-
-
-class TreatmentContextMixin(ContextMixin):
+class RandomizationListViewMixin(ContextMixin):
 
     randomization_list_model = 'ambition_rando.randomizationlist'
 
