@@ -18,9 +18,9 @@ def import_randomization_list(path=None, verbose=None, overwrite=None):
     """Imports CSV.
 
     Format:
-        sid,drug_assignment,site
-        1,single_dose,40
-        2,two_doses,40
+        sid,drug_assignment,site_name
+        1,single_dose,gaborone
+        2,two_doses,gaborone
         ...
     """
 

@@ -1,3 +1,5 @@
+from django.contrib.sites.managers import CurrentSiteManager
+from django.contrib.sites.models import Site
 from django.db import models
 from django_crypto_fields.fields import EncryptedCharField
 from edc_base.model_mixins import BaseUuidModel
@@ -5,6 +7,11 @@ from edc_base.model_managers import HistoricalRecords
 
 from ..constants import CONTROL, CONTROL_NAME, SINGLE_DOSE, SINGLE_DOSE_NAME
 from ..randomizer import RandomizationError
+from django.core.exceptions import ObjectDoesNotExist
+
+
+class RandomizationListModelError(Exception):
+    pass
 
 
 class RandomizationListManager(models.Manager):
@@ -28,13 +35,16 @@ class RandomizationList(BaseUuidModel):
             (SINGLE_DOSE, SINGLE_DOSE_NAME),
             (CONTROL, CONTROL_NAME)))
 
-    site = models.CharField(max_length=25)
+    site_name = models.CharField(max_length=100)
 
     allocated = models.BooleanField(default=False)
 
     allocated_datetime = models.DateTimeField(null=True)
 
     allocated_user = models.CharField(max_length=50, null=True)
+
+    allocated_site = models.ForeignKey(
+        Site, null=True, on_delete=models.CASCADE)
 
     verified = models.BooleanField(default=False)
 
@@ -46,12 +56,28 @@ class RandomizationList(BaseUuidModel):
 
     history = HistoricalRecords()
 
+    on_site = CurrentSiteManager('allocated_site')
+
     def __str__(self):
-        return f'{self.sid} subject={self.subject_identifier}'
+        return f'{self.site_name}.{self.sid} subject={self.subject_identifier}'
+
+    def save(self, *args, **kwargs):
+        try:
+            self.treatment_description
+        except RandomizationError as e:
+            raise RandomizationListModelError(e)
+        try:
+            Site.objects.get(name=self.site_name)
+        except ObjectDoesNotExist:
+            site_names = [obj.name for obj in Site.objects.all()]
+            raise RandomizationListModelError(
+                f'Invalid site name. Got {self.site_name}. '
+                f'Expected one of {site_names}.')
+        super().save(*args, **kwargs)
 
     @property
     def short_label(self):
-        return (f'{self.drug_assignment} SID:{self.sid}')
+        return (f'{self.drug_assignment} SID:{self.site_name}.{self.sid}')
 
     @property
     def treatment_description(self):
@@ -66,5 +92,5 @@ class RandomizationList(BaseUuidModel):
         return (self.sid, )
 
     class Meta:
-        ordering = ('site', 'sid', )
-        unique_together = ('subject_identifier', 'sid')
+        ordering = ('site_name', 'sid', )
+        unique_together = ('site_name', 'sid')

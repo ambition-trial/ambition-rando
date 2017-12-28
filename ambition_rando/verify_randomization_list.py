@@ -26,7 +26,7 @@ def verify_randomization_list():
         else:
             with open(app_config.randomization_list_path, 'r') as f:
                 reader = csv.DictReader(
-                    f, fieldnames=['sid', 'drug_assignment', 'site'])
+                    f, fieldnames=['sid', 'drug_assignment', 'site_name'])
                 for index, row in enumerate(reader):
                     if index == 0:
                         continue
@@ -41,7 +41,7 @@ def verify_randomization_list():
                         break
                     else:
                         if (obj.drug_assignment != row['drug_assignment']
-                                or obj.site != row['site']):
+                                or obj.site_name != row['site_name']):
                             message = (
                                 f'Randomization list is INVALID. File data '
                                 f'does not match model data. See file '
@@ -51,7 +51,7 @@ def verify_randomization_list():
             if not message:
                 with open(app_config.randomization_list_path, 'r') as f:
                     reader = csv.DictReader(
-                        f, fieldnames=['sid', 'drug_assignment', 'site'])
+                        f, fieldnames=['sid', 'drug_assignment', 'site_name'])
                     lines = sum(1 for row in reader)
                 if count != lines - 1:
                     message = (

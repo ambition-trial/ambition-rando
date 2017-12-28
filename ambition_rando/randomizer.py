@@ -28,13 +28,12 @@ class Randomizer:
 
     model = app_config.randomization_list_model
 
-    def __init__(self, subject_identifier=None, report_datetime=None,
-                 study_site=None, user=None):
+    def __init__(self, subject_identifier=None, report_datetime=None, site=None, user=None):
         self._model_obj = None
         self._registered_subject = None
         self.subject_identifier = subject_identifier
         self.allocated_datetime = report_datetime
-        self.study_site = study_site
+        self.site = site
         self.user = user
         self.model_cls = django_apps.get_model(self.model)
         self.check_loaded()
@@ -57,7 +56,7 @@ class Randomizer:
 
     @property
     def model_obj(self):
-        """Returns a model instance by selecting
+        """Returns a "rando" model instance by selecting
         the next available SID.
         """
         if not self._model_obj:
@@ -67,11 +66,11 @@ class Randomizer:
             except ObjectDoesNotExist:
                 self._model_obj = self.model_cls.objects.filter(
                     subject_identifier__isnull=True,
-                    site=self.study_site).order_by('sid').first()
+                    site_name=self.site.name).order_by('sid').first()
                 if not self._model_obj:
                     raise AllocationError(
                         f'Randomization failed. No additional SIDs available for '
-                        f'site \'{self.study_site}\'.')
+                        f'site \'{self.site.name}\'.')
             else:
                 raise AlreadyRandomized(
                     f'Subject already randomized. '
@@ -85,6 +84,7 @@ class Randomizer:
         self.model_obj.allocated = True
         self.model_obj.allocated_datetime = self.allocated_datetime
         self.model_obj.allocated_user = self.user
+        self.model_obj.allocated_site = self.site
         self.model_obj.save()
         # requery
         self._model_obj = self.model_cls.objects.get(
