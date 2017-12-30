@@ -14,6 +14,8 @@ class SiteTestCaseMixin:
 
     site_names = [s[1] for s in default_sites]
 
+    import_randomization_list = True
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -21,7 +23,8 @@ class SiteTestCaseMixin:
         for site_id, site_name in cls.default_sites:
             Site.objects.create(
                 pk=site_id, name=site_name, domain=f'{site_name}.ambition.org.bw')
-        import_randomization_list(verbose=False)
+        if cls.import_randomization_list:
+            import_randomization_list(verbose=False)
 
     @classmethod
     def tearDownClass(cls):

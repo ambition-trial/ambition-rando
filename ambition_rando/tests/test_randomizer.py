@@ -19,12 +19,15 @@ from .site_test_case_mixin import SiteTestCaseMixin
 
 class TestRandomizer(SiteTestCaseMixin, TestCase):
 
+    import_randomization_list = False
+
     def populate_list(self, site_names=None):
         path, filename = make_test_list(
             site_names=site_names or self.site_names)
         path = os.path.join(path, filename)
         import_randomization_list(path=path, overwrite=True)
 
+    @tag('1')
     @override_settings(SITE_ID=40)
     def test_with_consent_no_site(self):
         subject_consent = SubjectConsent.objects.create(
@@ -37,6 +40,7 @@ class TestRandomizer(SiteTestCaseMixin, TestCase):
             site=subject_consent.site,
             user=subject_consent.user_modified)
 
+    @tag('1')
     @override_settings(SITE_ID=40)
     def test_with_consent(self):
         site = Site.objects.get_current()
@@ -292,7 +296,6 @@ class TestRandomizer(SiteTestCaseMixin, TestCase):
     @tag('1')
     @override_settings(SITE_ID=40)
     def test_verify_list(self):
-
         site = Site.objects.get_current()
         message = verify_randomization_list()
         self.assertIn('Randomization list has not been loaded', message)
