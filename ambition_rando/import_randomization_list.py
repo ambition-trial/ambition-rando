@@ -36,6 +36,7 @@ def import_randomization_list(path=None, verbose=None, overwrite=None):
     with open(path, 'r') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
+            row = {k: v.strip() for k, v in row.items()}
             RandomizationList.objects.create(**row)
     count = RandomizationList.objects.all().count()
     if verbose:
