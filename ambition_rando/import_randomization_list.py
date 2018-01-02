@@ -25,8 +25,7 @@ def import_randomization_list(path=None, verbose=None, overwrite=None):
     """
 
     verbose = True if verbose is None else verbose
-    path = path or os.path.join(
-        settings.BASE_DIR, 'test_randomization_list.csv')
+    path = path or os.path.join(settings.RANDOMIZATION_LIST_PATH)
     path = os.path.expanduser(path)
     if overwrite:
         RandomizationList.objects.all().delete()

@@ -3,7 +3,7 @@ from django.contrib.sites.models import Site
 from ambition_rando.models import RandomizationList
 
 
-class SiteTestCaseMixin:
+class AmbitionTestCaseMixin:
 
     default_sites = [
         (10, 'mochudi'),

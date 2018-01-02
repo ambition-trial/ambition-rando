@@ -2,10 +2,17 @@ import os
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
+from django.core.checks.registry import register
+
+from .system_checks import randomization_list_check
 
 
 class AppConfig(DjangoAppConfig):
     name = 'ambition_rando'
-    randomization_list_model = 'ambition_rando.randomizationlist'
-    randomization_list_path = os.path.join(
-        settings.ETC_DIR, 'randomization_list.csv')
+
+    def ready(self):
+        register(randomization_list_check)
+
+    @property
+    def randomization_list_path(self):
+        return os.path.join(settings.RANDOMIZATION_LIST_PATH)

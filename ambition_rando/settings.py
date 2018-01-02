@@ -17,8 +17,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-SITE_ID = 40
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -127,6 +125,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
+RANDOMIZATION_LIST_PATH = os.path.join(BASE_DIR, 'test_randomization_list.csv')
 
 if 'test' in sys.argv:
 

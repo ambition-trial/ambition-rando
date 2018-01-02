@@ -1,30 +1,30 @@
 import os
 
-from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
 from random import shuffle
+from tempfile import mkdtemp
 
 from ..import_randomization_list import import_randomization_list
-from ..models import RandomizationList
+from ..models import RandomizationList, RandomizationListModelError
 from ..randomizer import RandomizationError, AllocationError
 from ..randomizer import Randomizer, RandomizationListError, AlreadyRandomized
 from ..verify_randomization_list import verify_randomization_list
 from .make_test_list import make_test_list
 from .models import SubjectConsent
-from .site_test_case_mixin import SiteTestCaseMixin
+from .ambition_test_case_mixin import AmbitionTestCaseMixin
 
 
-class TestRandomizer(SiteTestCaseMixin, TestCase):
+class TestRandomizer(AmbitionTestCaseMixin, TestCase):
 
     import_randomization_list = False
 
     def populate_list(self, site_names=None):
-        path, filename = make_test_list(
+        path = make_test_list(
             site_names=site_names or self.site_names)
-        path = os.path.join(path, filename)
         import_randomization_list(path=path, overwrite=True)
 
     @tag('1')
@@ -293,54 +293,41 @@ class TestRandomizer(SiteTestCaseMixin, TestCase):
             site=subject_consent.site,
             user=subject_consent.user_modified)
 
-    @tag('1')
-    @override_settings(SITE_ID=40)
-    def test_verify_list(self):
-        site = Site.objects.get_current()
+    @override_settings(SITE_ID=40, RANDOMIZTION_LIST_PATH='/tmp/erik.csv')
+    def test_invalid_path(self):
         message = verify_randomization_list()
-        self.assertIn('Randomization list has not been loaded', message)
+        self.assertIn('Randomization list has not been loaded.', message)
 
-        # populate
-        path, filename = make_test_list(site_names=self.site_names, count=5)
-        path1 = os.path.join(path, filename)
-        import_randomization_list(path=path1, overwrite=True)
-        self.assertEqual(RandomizationList.objects.all().count(), 5)
-
-        # set to invalid path
-        django_apps.app_configs[
-            'ambition_rando'].randomization_list_path = '/tmp/erik.csv'
-        message = verify_randomization_list()
-        self.assertIn('Randomization list file does not exist', message)
-
+    @override_settings(
+        SITE_ID=40, RANDOMIZATION_LIST_PATH=os.path.join(mkdtemp(), 'randolist.csv'))
+    def test_invalid_assignment(self):
         # change to a different assignments
         drug_assignments = ['up', 'down']
-        path, filename = make_test_list(
+        make_test_list(
+            full_path=settings.RANDOMIZATION_LIST_PATH,
             site_names=self.site_names,
             drug_assignments=drug_assignments, count=5)
-        django_apps.app_configs[
-            'ambition_rando'].randomization_list_path = os.path.join(path, filename)
-        message = verify_randomization_list()
-        self.assertIn('Randomization list is INVALID', message or '')
+        self.assertRaises(
+            RandomizationListModelError,
+            import_randomization_list)
 
+    @override_settings(SITE_ID=40)
+    def test_invalid_sid(self):
         # change to a different starting SID
-        path, filename = make_test_list(
-            site_names=self.site_names,
-            count=5, first_sid=100)
-        path2 = os.path.join(path, filename)
-        django_apps.app_configs[
-            'ambition_rando'].randomization_list_path = os.path.join(path2)
+        import_randomization_list()
+        obj = RandomizationList.objects.all().order_by('sid').first()
+        obj.sid = 100
+        obj.save()
         message = verify_randomization_list()
-        self.assertIn('Randomization list has INVALID SIDs', message or '')
+        self.assertIn('Randomization list is invalid', message or '')
 
-        # change to a different starting SID
-        django_apps.app_configs[
-            'ambition_rando'].randomization_list_path = os.path.join(path1)
-        message = verify_randomization_list()
-        self.assertIsNone(message)
-
+    @override_settings(SITE_ID=40)
+    def test_invalid_count(self):
+        site = Site.objects.get_current()
         # change number of SIDs in DB
+        import_randomization_list()
         RandomizationList.objects.create(
             sid=100, drug_assignment='single_dose', site_name=site.name)
-        self.assertEqual(RandomizationList.objects.all().count(), 6)
+        self.assertEqual(RandomizationList.objects.all().count(), 41)
         message = verify_randomization_list()
         self.assertIn('Randomization list count is off', message)

@@ -1,1 +1,1 @@
-from .site_test_case_mixin import SiteTestCaseMixin
+from .ambition_test_case_mixin import AmbitionTestCaseMixin

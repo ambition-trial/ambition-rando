@@ -21,12 +21,9 @@ class AllocationError(Exception):
     pass
 
 
-app_config = django_apps.get_app_config('ambition_rando')
-
-
 class Randomizer:
 
-    model = app_config.randomization_list_model
+    model = 'ambition_rando.randomizationlist'
 
     def __init__(self, subject_identifier=None, report_datetime=None, site=None, user=None):
         self._model_obj = None
