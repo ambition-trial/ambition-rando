@@ -21,8 +21,8 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            '--force-overwrite',
-            dest='overwrite',
+            '--force-add',
+            dest='add',
             default='NO',
             help=('overwrite existing data. CANNOT BE UNDONE!!'),
         )
@@ -32,8 +32,8 @@ class Command(BaseCommand):
         path = options['path'] or app_config.randomization_list_path
         if not os.path.exists(path or ''):
             raise CommandError(f'Invalid path. Got {path}')
-        overwrite = options['overwrite'] if options['overwrite'] == 'YES' else None
+        add = options['add'] if options['add'] == 'YES' else None
         try:
-            import_randomization_list(path=path, overwrite=overwrite)
+            import_randomization_list(path=path, add=add)
         except RandomizationListImportError as e:
             raise CommandError(e)
