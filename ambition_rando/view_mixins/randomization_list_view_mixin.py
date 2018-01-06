@@ -15,7 +15,5 @@ class RandomizationListViewMixin(ContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(
-            demographics_listgroup=[
-                ('fa-random', self.treatment_description)])
+        context.update(treatment_description=self.treatment_description)
         return context
