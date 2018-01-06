@@ -1,9 +1,11 @@
+import os
 import sys
 
 from collections import namedtuple
 from django.core.checks import Warning
 
 from .verify_randomization_list import verify_randomization_list
+from django.conf import settings
 
 err = namedtuple('Err', 'id cls')
 
@@ -26,4 +28,17 @@ def randomization_list_check(app_configs, **kwargs):
                     id=error.id,
                 )
             )
+    if not settings.DEBUG:
+        if settings.ETC_DIR not in settings.RANDOMIZATION_LIST_PATH:
+            errors.append(
+                Warning(
+                    f'Insecure configuration. Randomization list file must be '
+                    f'stored in the etc folder. Got {settings.RANDOMIZATION_LIST_PATH}',
+                    id=f'settings.RANDOMIZATION_LIST_PATH'))
+        if os.access(settings.RANDOMIZATION_LIST_PATH, os.W_OK):
+            errors.append(
+                Warning(
+                    f'Insecure configuration. File is writeable by this user. '
+                    f'Got {settings.RANDOMIZATION_LIST_PATH}',
+                    id=f'settings.RANDOMIZATION_LIST_PATH'))
     return errors
