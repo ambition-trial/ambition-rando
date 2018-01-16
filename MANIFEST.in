@@ -1,0 +1,2 @@
+include AUTHORS CHANGES README.md LICENCE
+recursive-include ambition_rando/templates *
