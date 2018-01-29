@@ -1,12 +1,14 @@
 import csv
 import os
 import sys
+from tqdm import tqdm
 
 from django.conf import settings
 from django.core.management.color import color_style
 
 from .models import RandomizationList
 from django.core.exceptions import ObjectDoesNotExist
+from ambition_rando.constants import SINGLE_DOSE, CONTROL
 
 style = color_style()
 
@@ -19,7 +21,7 @@ def import_randomization_list(path=None, verbose=None, overwrite=None, add=None)
     """Imports CSV.
 
     Format:
-        sid,drug_assignment,site_name
+        sid,drug_assignment,site_name, orig_site, orig_allocation, orig_desc
         1,single_dose,gaborone
         2,two_doses,gaborone
         ...
@@ -39,14 +41,25 @@ def import_randomization_list(path=None, verbose=None, overwrite=None, add=None)
     if len(sids) != len(list(set(sids))):
         raise RandomizationListImportError(
             'Invalid file. Detected duplicate SIDs')
+    sid_count = len(sids)
     with open(path, 'r') as csvfile:
         reader = csv.DictReader(csvfile)
-        for row in reader:
+        for row in tqdm(reader, total=sid_count):
             row = {k: v.strip() for k, v in row.items()}
             try:
                 RandomizationList.objects.get(sid=row['sid'])
             except ObjectDoesNotExist:
-                RandomizationList.objects.create(**row)
+                if int(row['drug_assignment']) == 2:
+                    drug_assignment = SINGLE_DOSE
+                elif int(row['drug_assignment']) == 1:
+                    drug_assignment = CONTROL
+                else:
+                    raise TypeError('Invalid drug assignment')
+                RandomizationList.objects.create(
+                    sid=row['sid'],
+                    drug_assignment=drug_assignment,
+                    site_name=row['site_name'],
+                    allocation=row['orig_allocation'])
     count = RandomizationList.objects.all().count()
     if verbose:
         sys.stdout.write(style.SUCCESS(

@@ -1,7 +1,7 @@
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django_crypto_fields.fields import EncryptedCharField
+from django_crypto_fields.fields import EncryptedTextField
 from edc_base.model_managers import HistoricalRecords
 from edc_base.model_mixins import BaseUuidModel
 from edc_base.sites import CurrentSiteManager
@@ -30,12 +30,16 @@ class RandomizationList(BaseUuidModel):
 
     sid = models.IntegerField(unique=True)
 
-    drug_assignment = EncryptedCharField(
+    drug_assignment = EncryptedTextField(
         choices=(
             (SINGLE_DOSE, SINGLE_DOSE_NAME),
             (CONTROL, CONTROL_NAME)))
 
     site_name = models.CharField(max_length=100)
+
+    allocation = EncryptedTextField(
+        verbose_name='Original integer allocation',
+        null=True)
 
     allocated = models.BooleanField(default=False)
 
