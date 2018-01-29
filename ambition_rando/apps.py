@@ -9,6 +9,7 @@ from .system_checks import randomization_list_check
 
 class AppConfig(DjangoAppConfig):
     name = 'ambition_rando'
+    include_in_administration = False
 
     def ready(self):
         register(randomization_list_check)
