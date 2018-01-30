@@ -49,17 +49,26 @@ def import_randomization_list(path=None, verbose=None, overwrite=None, add=None)
             try:
                 RandomizationList.objects.get(sid=row['sid'])
             except ObjectDoesNotExist:
-                if int(row['drug_assignment']) == 2:
-                    drug_assignment = SINGLE_DOSE
-                elif int(row['drug_assignment']) == 1:
-                    drug_assignment = CONTROL
-                else:
-                    raise TypeError('Invalid drug assignment')
+
+                drug_assignment = row['drug_assignment']
+                if drug_assignment not in [SINGLE_DOSE, CONTROL]:
+                    if int(row['drug_assignment']) == 2:
+                        drug_assignment = SINGLE_DOSE
+                    elif int(row['drug_assignment']) == 1:
+                        drug_assignment = CONTROL
+                    else:
+                        raise TypeError('Invalid drug assignment')
+
+                try:
+                    allocation = row['orig_allocation']
+                except KeyError:
+                    allocation = '2' if drug_assignment == SINGLE_DOSE else '1'
+
                 RandomizationList.objects.create(
                     sid=row['sid'],
                     drug_assignment=drug_assignment,
                     site_name=row['site_name'],
-                    allocation=row['orig_allocation'])
+                    allocation=allocation)
     count = RandomizationList.objects.all().count()
     if verbose:
         sys.stdout.write(style.SUCCESS(
