@@ -5,6 +5,8 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import OperationalError, ProgrammingError
 
+from .utils import get_drug_assignment
+
 
 def verify_randomization_list():
     message = None
@@ -51,14 +53,15 @@ def verify_randomization_list():
                                 f'Got {row["sid"]} != {obj.sid}.')
                             break
                         else:
-                            if (obj.drug_assignment != row['drug_assignment']
+                            drug_assignment = get_drug_assignment(row)
+                            if (obj.drug_assignment != drug_assignment
                                     or obj.site_name != row['site_name']):
                                 message = (
                                     f'Randomization list is invalid. File data '
                                     f'does not match model data. See file '
                                     f'{app_config.randomization_list_path}. '
                                     f'Resolve this issue before using the system. '
-                                    f'Got {row}.')
+                                    f'Got {drug_assignment} != \'{obj.drug_assignment}\'.')
                                 break
                 if not message:
                     with open(app_config.randomization_list_path, 'r') as f:
