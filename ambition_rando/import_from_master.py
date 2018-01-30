@@ -1,14 +1,7 @@
 import csv
 import os
 
-from ambition.sites import ambition_sites
-
-
-def get_site_name(long_name, row=None):
-    try:
-        return [site for site in ambition_sites if site[2] == long_name][0][1]
-    except IndexError as e:
-        raise IndexError(f'{long_name} not found. Got {e}. See {row}')
+from .utils import get_site_name
 
 
 def import_from_master(path=None, source_prefix=None, destination_filename=None):

@@ -1,14 +1,15 @@
 import csv
 import os
 import sys
-from tqdm import tqdm
 
 from django.conf import settings
-from django.core.management.color import color_style
-
-from .models import RandomizationList
 from django.core.exceptions import ObjectDoesNotExist
-from ambition_rando.constants import SINGLE_DOSE, CONTROL
+from django.core.management.color import color_style
+from tqdm import tqdm
+
+from .constants import SINGLE_DOSE
+from .utils import get_drug_assignment
+from .models import RandomizationList
 
 style = color_style()
 
@@ -50,14 +51,7 @@ def import_randomization_list(path=None, verbose=None, overwrite=None, add=None)
                 RandomizationList.objects.get(sid=row['sid'])
             except ObjectDoesNotExist:
 
-                drug_assignment = row['drug_assignment']
-                if drug_assignment not in [SINGLE_DOSE, CONTROL]:
-                    if int(row['drug_assignment']) == 2:
-                        drug_assignment = SINGLE_DOSE
-                    elif int(row['drug_assignment']) == 1:
-                        drug_assignment = CONTROL
-                    else:
-                        raise TypeError('Invalid drug assignment')
+                drug_assignment = get_drug_assignment(row)
 
                 try:
                     allocation = row['orig_allocation']
