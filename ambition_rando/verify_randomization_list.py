@@ -30,20 +30,25 @@ def verify_randomization_list():
                     f'Resolve this issue before using the system.')
             else:
                 with open(app_config.randomization_list_path, 'r') as f:
+                    fieldnames = ['sid', 'drug_assignment', 'site_name']
                     reader = csv.DictReader(
-                        f, fieldnames=['sid', 'drug_assignment', 'site_name'])
+                        f, fieldnames=fieldnames)
                     for index, row in enumerate(reader):
-                        row = {k: v.strip() for k, v in row.items()}
+                        row = {k: v.strip()
+                               for k, v in row.items() if k in fieldnames}
                         if index == 0:
                             continue
                         try:
                             obj = model_cls.objects.get(sid=row['sid'])
                         except ObjectDoesNotExist:
+                            obj = model_cls.objects.all()[index]
                             message = (
                                 f'Randomization list is invalid. List has invalid SIDs. '
                                 f'File data does not match model data. See file '
                                 f'{app_config.randomization_list_path}. '
-                                f'Resolve this issue before using the system.')
+                                f'Resolve this issue before using the system. '
+                                f'Problem started on line {index + 1}. '
+                                f'Got {row["sid"]} != {obj.sid}.')
                             break
                         else:
                             if (obj.drug_assignment != row['drug_assignment']
