@@ -62,7 +62,7 @@ def import_randomization_list(path=None, verbose=None, overwrite=None, add=None)
                 try:
                     allocation = row['orig_allocation']
                 except KeyError:
-                    allocation = 2 if drug_assignment == SINGLE_DOSE else 1
+                    allocation = '2' if drug_assignment == SINGLE_DOSE else '1'
 
                 RandomizationList.objects.create(
                     sid=row['sid'],
