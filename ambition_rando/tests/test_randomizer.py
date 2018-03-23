@@ -9,25 +9,25 @@ from random import shuffle
 from tempfile import mkdtemp
 
 from ..import_randomization_list import import_randomization_list
-from ..models import RandomizationList, RandomizationListModelError
+from ..models import RandomizationList
 from ..randomizer import RandomizationError, AllocationError
 from ..randomizer import Randomizer, RandomizationListError, AlreadyRandomized
+from ..utils import InvalidDrugAssignment
 from ..verify_randomization_list import verify_randomization_list
+from .ambition_test_case_mixin import AmbitionTestCaseMixin
 from .make_test_list import make_test_list
 from .models import SubjectConsent
-from .ambition_test_case_mixin import AmbitionTestCaseMixin
 
 
 class TestRandomizer(AmbitionTestCaseMixin, TestCase):
 
     import_randomization_list = False
 
-    def populate_list(self, site_names=None):
+    def populate_list(self, site_names=None, per_site=None):
         path = make_test_list(
-            site_names=site_names or self.site_names)
+            site_names=site_names or self.site_names, per_site=per_site)
         import_randomization_list(path=path, overwrite=True)
 
-    @tag('1')
     @override_settings(SITE_ID=40)
     def test_with_consent_no_site(self):
         subject_consent = SubjectConsent.objects.create(
@@ -40,7 +40,6 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
             site=subject_consent.site,
             user=subject_consent.user_modified)
 
-    @tag('1')
     @override_settings(SITE_ID=40)
     def test_with_consent(self):
         site = Site.objects.get_current()
@@ -114,7 +113,6 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
         self.assertGreater(first_obj.modified,
                            subject_consent.created)
 
-    @tag('2')
     @override_settings(SITE_ID=40)
     def test_cannot_rerandomize(self):
         self.populate_list()
@@ -246,9 +244,11 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
     def test_for_sites(self):
         """Assert that allocates by site correctly.
         """
-        site_names = self.site_names * 5
-        self.populate_list(site_names=site_names)
+        RandomizationList.objects.all().delete()
+        self.populate_list(site_names=self.site_names, per_site=5)
+        site_names = [obj.site_name for obj in RandomizationList.objects.all()]
         shuffle(site_names)
+        assert len(site_names) == len(self.site_names * 5)
         # consent and randomize 5 for each site
         for index, site_name in enumerate(site_names):
             site = Site.objects.get(name=site_name)
@@ -302,13 +302,13 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
         SITE_ID=40, RANDOMIZATION_LIST_PATH=os.path.join(mkdtemp(), 'randolist.csv'))
     def test_invalid_assignment(self):
         # change to a different assignments
-        drug_assignments = ['up', 'down']
+        drug_assignments = [100, 101]
         make_test_list(
             full_path=settings.RANDOMIZATION_LIST_PATH,
             site_names=self.site_names,
             drug_assignments=drug_assignments, count=5)
         self.assertRaises(
-            RandomizationListModelError,
+            InvalidDrugAssignment,
             import_randomization_list)
 
     @override_settings(SITE_ID=40)

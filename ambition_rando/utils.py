@@ -3,6 +3,10 @@ from ambition.sites import ambition_sites
 from .constants import SINGLE_DOSE, CONTROL
 
 
+class InvalidDrugAssignment(Exception):
+    pass
+
+
 def get_drug_assignment(row):
     """Returns drug_assignment as a word; 'single_dose' or 'control'.
 
@@ -16,7 +20,9 @@ def get_drug_assignment(row):
         elif int(row['drug_assignment']) == 1:
             drug_assignment = CONTROL
         else:
-            raise TypeError('Invalid drug assignment')
+            raise InvalidDrugAssignment(
+                f'Invalid drug assignment. '
+                f'Got \'{row["drug_assignment"]}\'. Expected 1 or 2.')
     return drug_assignment
 
 
