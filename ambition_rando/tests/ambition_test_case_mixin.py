@@ -1,12 +1,14 @@
-from ambition import ambition_sites
+from ambition import ambition_sites, fqdn
 from ambition_rando.import_randomization_list import import_randomization_list
 from ambition_rando.models import RandomizationList
-from django.contrib.sites.models import Site
+from edc_base.tests import SiteTestCaseMixin
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
 
 
-class AmbitionTestCaseMixin:
+class AmbitionTestCaseMixin(SiteTestCaseMixin):
+
+    fqdn = fqdn
 
     default_sites = ambition_sites
 
@@ -17,16 +19,12 @@ class AmbitionTestCaseMixin:
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        Site.objects.all().delete()
-        for site_id, site_name, _ in cls.default_sites:
-            Site.objects.create(
-                pk=site_id, name=site_name, domain=f'{site_name}.ambition.org.bw')
         if cls.import_randomization_list:
             import_randomization_list(verbose=False)
         import_holidays()
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         RandomizationList.objects.all().delete()
         Holiday.objects.all().delete()
-        super().tearDownClass()
