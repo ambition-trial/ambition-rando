@@ -26,6 +26,24 @@ def get_drug_assignment(row):
     return drug_assignment
 
 
+def get_allocation(row, drug_assignment):
+    """Returns an allocation as 1 or 2 for the given
+    drug assignment or raises.
+    """
+
+    try:
+        allocation = row['orig_allocation']
+    except KeyError:
+        if drug_assignment == SINGLE_DOSE:
+            allocation = '2'
+        elif drug_assignment == CONTROL:
+            allocation = '1'
+        else:
+            raise InvalidDrugAssignment(
+                f'Invalid drug_assignment. Got {drug_assignment}.')
+    return allocation
+
+
 def get_site_name(long_name, row=None):
     """Returns the site name given the "long" site name.
     """

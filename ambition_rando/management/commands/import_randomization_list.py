@@ -3,8 +3,8 @@ import os
 from django.apps import apps as django_apps
 from django.core.management.base import BaseCommand, CommandError
 
-from ...import_randomization_list import import_randomization_list
-from ...import_randomization_list import RandomizationListImportError
+from ...randomization_list_importer import RandomizationListImportError
+from ...randomization_list_importer import RandomizationListImporter
 
 
 class Command(BaseCommand):
@@ -34,6 +34,6 @@ class Command(BaseCommand):
             raise CommandError(f'Invalid path. Got {path}')
         add = options['add'] if options['add'] == 'YES' else None
         try:
-            import_randomization_list(path=path, add=add)
+            RandomizationListImporter(path=path, add=add)
         except RandomizationListImportError as e:
             raise CommandError(e)

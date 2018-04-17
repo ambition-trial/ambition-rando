@@ -8,12 +8,12 @@ from edc_registration.models import RegisteredSubject
 from random import shuffle
 from tempfile import mkdtemp
 
-from ..import_randomization_list import import_randomization_list
 from ..models import RandomizationList
+from ..randomization_list_importer import RandomizationListImporter
 from ..randomizer import RandomizationError, AllocationError
 from ..randomizer import Randomizer, RandomizationListError, AlreadyRandomized
 from ..utils import InvalidDrugAssignment
-from ..verify_randomization_list import verify_randomization_list
+from ..randomization_list_verifier import RandomizationListVerifier
 from .ambition_test_case_mixin import AmbitionTestCaseMixin
 from .make_test_list import make_test_list
 from .models import SubjectConsent
@@ -26,7 +26,7 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
     def populate_list(self, site_names=None, per_site=None):
         path = make_test_list(
             site_names=site_names or self.site_names, per_site=per_site)
-        import_randomization_list(path=path, overwrite=True)
+        RandomizationListImporter(path=path, overwrite=True)
 
     @override_settings(SITE_ID=40)
     def test_with_consent_no_site(self):
@@ -295,7 +295,7 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
 
     @override_settings(SITE_ID=40, RANDOMIZTION_LIST_PATH='/tmp/erik.csv')
     def test_invalid_path(self):
-        message = verify_randomization_list()
+        message = RandomizationListVerifier().message
         self.assertIn('Randomization list has not been loaded.', message)
 
     @override_settings(
@@ -309,25 +309,25 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
             drug_assignments=drug_assignments, count=5)
         self.assertRaises(
             InvalidDrugAssignment,
-            import_randomization_list)
+            RandomizationListImporter)
 
     @override_settings(SITE_ID=40)
     def test_invalid_sid(self):
         # change to a different starting SID
-        import_randomization_list()
+        RandomizationListImporter()
         obj = RandomizationList.objects.all().order_by('sid').first()
         obj.sid = 100
         obj.save()
-        message = verify_randomization_list()
+        message = RandomizationListVerifier().message
         self.assertIn('Randomization list is invalid', message or '')
 
     @override_settings(SITE_ID=40)
     def test_invalid_count(self):
         site = Site.objects.get_current()
         # change number of SIDs in DB
-        import_randomization_list()
+        RandomizationListImporter()
         RandomizationList.objects.create(
             sid=100, drug_assignment='single_dose', site_name=site.name)
         self.assertEqual(RandomizationList.objects.all().count(), 41)
-        message = verify_randomization_list()
+        message = RandomizationListVerifier().message
         self.assertIn('Randomization list count is off', message)

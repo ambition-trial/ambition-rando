@@ -1,6 +1,6 @@
-# ambition-rando
+[![Build Status](https://travis-ci.org/ambition-study/ambition-rando.svg?branch=develop)](https://travis-ci.org/ambition-study/ambition-rando) [![Coverage Status](https://coveralls.io/repos/github/ambition-study/ambition-rando/badge.svg?branch=develop)](https://coveralls.io/github/ambition-study/ambition-rando?branch=develop)
 
-[![Build Status](https://travis-ci.org/botswana-harvard/ambition-rando.svg?branch=develop)](https://travis-ci.org/botswana-harvard/ambition-rando) [![Coverage Status](https://coveralls.io/repos/github/botswana-harvard/ambition-rando/badge.svg?branch=develop)](https://coveralls.io/github/botswana-harvard/ambition-rando?branch=develop)
+# ambition-rando
 
 Randomization class and model for Ambition
 
