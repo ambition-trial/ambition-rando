@@ -1,7 +1,7 @@
 git+https://github.com/ambition-study/ambition-labs.git@develop#egg=ambition_labs
 git+https://github.com/ambition-study/ambition.git@develop#egg=ambition
 git+https://github.com/ambition-study/ambition-metadata-rules.git@develop#egg=ambition_metadata_rules
-git+https://github.com/ambition-study/ambition-rando.git@develop#egg=ambition_rando
+git+https://github.com/ambition-study/ambition-screening.git@develop#egg=ambition_screening
 git+https://github.com/ambition-study/ambition-ae.git@develop#egg=ambition-ae
 git+https://github.com/ambition-study/ambition-reference.git@develop#egg=ambition_reference
 git+https://github.com/ambition-study/ambition-prn.git@develop#egg=ambition-prn
