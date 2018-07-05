@@ -1,8 +1,9 @@
-from ambition_rando.randomizer import RandomizationListError
 from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
+
+from ..randomizer import RandomizationListError
 
 
 class RandomizationListViewMixin(ContextMixin):

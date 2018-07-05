@@ -1,4 +1,4 @@
-from ambition.sites import ambition_sites
+from ambition_sites import ambition_sites
 
 from .constants import SINGLE_DOSE, CONTROL
 

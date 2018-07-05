@@ -1,4 +1,4 @@
-from ambition import ambition_sites, fqdn
+from ambition_sites import ambition_sites, fqdn
 from edc_base.tests import SiteTestCaseMixin
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday

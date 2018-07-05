@@ -3,7 +3,6 @@ import os
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.checks.registry import register
-from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
 
 from .system_checks import randomization_list_check
 
@@ -21,6 +20,8 @@ class AppConfig(DjangoAppConfig):
 
 
 if settings.APP_NAME == 'ambition_rando':
+
+    from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
 
     from dateutil.relativedelta import MO, TU, WE, TH, FR, SA, SU
 
