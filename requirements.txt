@@ -44,5 +44,5 @@ git+https://github.com/clinicedc/edc-pharmacy.git@develop#egg=edc_pharmacy
 git+https://github.com/clinicedc/edc-facility.git@develop#egg=edc_facility
 git+https://github.com/erikvw/django-crypto-fields.git@develop#egg=django_crypto_fields
 git+https://github.com/erikvw/django-revision.git@develop#egg=django_revision
-git+https://github.com/erikvw/django-offline-files@develop#egg=django-offline-files
-git+https://github.com/erikvw/django-offline@develop#egg=django-offline
+git+https://github.com/erikvw/django-collect-offline-files@develop#egg=django-collect-offline-files
+git+https://github.com/erikvw/django-collect-offline@develop#egg=django-collect-offline

@@ -128,9 +128,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
-RANDOMIZATION_LIST_PATH = os.path.join(BASE_DIR, 'test_randomization_list.csv')
+RANDOMIZATION_LIST_PATH = os.path.join(
+    BASE_DIR, APP_NAME, 'tests', 'test_randomization_list.csv')
 COUNTRY = 'botswana'
-HOLIDAY_FILE = os.path.join(BASE_DIR, 'holidays.csv')
+HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
 
 if 'test' in sys.argv:
 
