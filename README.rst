@@ -33,8 +33,8 @@ To rebuild the records in RandomizationList:
 .. |pypi| image:: https://img.shields.io/pypi/v/ambition-rando.svg
     :target: https://pypi.python.org/pypi/ambition-rando
     
-.. |travis| image:: https://travis-ci.org/clinicedc/ambition-rando.svg?branch=develop
-    :target: https://travis-ci.org/clinicedc/ambition-rando
+.. |travis| image:: https://travis-ci.org/ambition-trial/ambition-rando.svg?branch=develop
+    :target: https://travis-ci.org/ambition-trial/ambition-rando
     
-.. |coverage| image:: https://coveralls.io/repos/github/clinicedc/ambition-rando/badge.svg?branch=develop
-    :target: https://coveralls.io/github/clinicedc/ambition-rando?branch=develop
+.. |coverage| image:: https://coveralls.io/repos/github/ambition-trial/ambition-rando/badge.svg?branch=develop
+    :target: https://coveralls.io/github/ambition-trial/ambition-rando?branch=develop
