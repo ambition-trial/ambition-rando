@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'edc_device.apps.AppConfig',
     'edc_identifier.apps.AppConfig',
     'edc_protocol.apps.AppConfig',
+    'ambition_rando.apps.EdcFacilityAppConfig',
     'ambition_rando.apps.AppConfig',
 ]
 
@@ -127,7 +128,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 GIT_DIR = BASE_DIR
-RANDOMIZATION_LIST_PATH = os.path.join(BASE_DIR, 'test_randomization_list.csv')
+RANDOMIZATION_LIST_PATH = os.path.join(
+    BASE_DIR, APP_NAME, 'tests', 'test_randomization_list.csv')
+COUNTRY = 'botswana'
+HOLIDAY_FILE = os.path.join(BASE_DIR, APP_NAME, 'tests', 'holidays.csv')
 
 if 'test' in sys.argv:
 

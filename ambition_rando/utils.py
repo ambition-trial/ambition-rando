@@ -1,6 +1,10 @@
-from ambition.sites import ambition_sites
+from ambition_sites import ambition_sites
 
 from .constants import SINGLE_DOSE, CONTROL
+
+
+class InvalidDrugAssignment(Exception):
+    pass
 
 
 def get_drug_assignment(row):
@@ -16,8 +20,28 @@ def get_drug_assignment(row):
         elif int(row['drug_assignment']) == 1:
             drug_assignment = CONTROL
         else:
-            raise TypeError('Invalid drug assignment')
+            raise InvalidDrugAssignment(
+                f'Invalid drug assignment. '
+                f'Got \'{row["drug_assignment"]}\'. Expected 1 or 2.')
     return drug_assignment
+
+
+def get_allocation(row, drug_assignment):
+    """Returns an allocation as 1 or 2 for the given
+    drug assignment or raises.
+    """
+
+    try:
+        allocation = row['orig_allocation']
+    except KeyError:
+        if drug_assignment == SINGLE_DOSE:
+            allocation = '2'
+        elif drug_assignment == CONTROL:
+            allocation = '1'
+        else:
+            raise InvalidDrugAssignment(
+                f'Invalid drug_assignment. Got {drug_assignment}.')
+    return allocation
 
 
 def get_site_name(long_name, row=None):
