@@ -10,7 +10,7 @@ from .randomization_list_verifier import RandomizationListVerifier
 err = namedtuple('Err', 'id cls')
 
 error_configs = dict(
-    randomization_list_check=err('ambition.W001', Warning))
+    randomization_list_check=err('ambition_edc.W001', Warning))
 
 
 def randomization_list_check(app_configs, **kwargs):
