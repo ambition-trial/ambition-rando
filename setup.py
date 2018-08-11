@@ -26,11 +26,13 @@ setup(
     zip_safe=False,
     keywords='django ambition edc randomization',
     install_requires=[
-        'django_collect_offline',
-        'django_collect_offline-files',
+        'ambition-sites',
+        'django-crypto-fields',
+        'django-collect-offline',
+        'django-collect-offline-files',
         'edc-base',
-        'edc_model_admin',
-        'edc_registration',
+        'edc-model-admin',
+        'edc-registration',
         'tqdm',
     ],
     classifiers=[
