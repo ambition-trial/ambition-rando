@@ -1,7 +1,8 @@
 from django.contrib import admin
-from ambition_rando.models.randomization_list import RandomizationList
 from edc_model_admin.model_admin_audit_fields_mixin import audit_fieldset_tuple,\
     audit_fields
+
+from .models import RandomizationList
 
 
 @admin.register(RandomizationList)

@@ -25,6 +25,14 @@ setup(
     long_description=README,
     zip_safe=False,
     keywords='django ambition edc randomization',
+    install_requires=[
+        'django_collect_offline',
+        'django_collect_offline-files',
+        'edc-base',
+        'edc_model_admin',
+        'edc_registration',
+        'tqdm',
+    ],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
