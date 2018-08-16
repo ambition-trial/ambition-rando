@@ -57,14 +57,18 @@ class RandomizationListVerifier:
                 try:
                     obj = self.model_cls.objects.get(sid=row['sid'])
                 except ObjectDoesNotExist:
-                    obj = self.model_cls.objects.all()[index]
-                    message = (
-                        f'Randomization list is invalid. List has invalid SIDs. '
-                        f'File data does not match model data. See file '
-                        f'{self.app_config.randomization_list_path}. '
-                        f'Resolve this issue before using the system. '
-                        f'Problem started on line {index + 1}. '
-                        f'Got {row["sid"]} != {obj.sid}.')
+                    try:
+                        obj = self.model_cls.objects.all()[index]
+                    except IndexError:
+                        pass
+                    else:
+                        message = (
+                            f'Randomization list is invalid. List has invalid SIDs. '
+                            f'File data does not match model data. See file '
+                            f'{self.app_config.randomization_list_path}. '
+                            f'Resolve this issue before using the system. '
+                            f'Problem started on line {index + 1}. '
+                            f'Got {row["sid"]} != {obj.sid}.')
                     break
                 else:
                     drug_assignment = get_drug_assignment(row)
