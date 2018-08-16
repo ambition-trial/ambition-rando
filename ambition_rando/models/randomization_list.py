@@ -98,3 +98,5 @@ class RandomizationList(BaseUuidModel):
     class Meta:
         ordering = ('site_name', 'sid', )
         unique_together = ('site_name', 'sid')
+        permissions = (("display_randomization",
+                        "Can display randomization"),)
