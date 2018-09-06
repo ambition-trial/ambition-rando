@@ -48,6 +48,10 @@ class RandomizationListImporter:
                 'Invalid file. Detected duplicate SIDs')
         self.sid_count = len(sids)
         self.site_names = {obj.name: obj.name for obj in Site.objects.all()}
+        if not self.site_names:
+            raise RandomizationListImportError(
+                'No sites have been imported. See ambition-sites and .'
+                'method "add_or_update_django_sites".')
 
         objs = []
         with open(path, 'r') as csvfile:
@@ -80,6 +84,7 @@ class RandomizationListImporter:
         try:
             site_name = self.site_names[row['site_name']]
         except KeyError:
-            RandomizationListImportError(
-                f'Invalid site. Got {row["site_name"]}')
+            raise RandomizationListImportError(
+                f'Invalid site. Got {row["site_name"]}. '
+                f'Expected one of {self.site_names.keys()}')
         return site_name
