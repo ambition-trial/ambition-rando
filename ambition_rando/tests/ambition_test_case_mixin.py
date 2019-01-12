@@ -22,7 +22,7 @@ class AmbitionTestCaseMixin(SiteTestCaseMixin):
         super().setUpClass()
         if cls.import_randomization_list:
             RandomizationListImporter(verbose=False)
-        import_holidays()
+        import_holidays(test=True)
 
     @classmethod
     def tearDownClass(cls):
