@@ -1,7 +1,6 @@
 language: python
 
 python:
-- 3.6
 - 3.7
 
 dist: xenial
@@ -24,6 +23,6 @@ before_script:
 - flake8 ambition_rando
 - mysql -e 'create database edc character set utf8;'
 script:
-- coverage run --source=ambition_rando manage.py test
+- coverage run --source=ambition_rando setup.py test
 after_success:
 - coveralls

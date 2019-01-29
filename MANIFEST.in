@@ -1,2 +1,6 @@
-include AUTHORS CHANGES README LICENSE VERSION
+include AUTHORS CHANGES LICENSE VERSION
+include MANIFEST.in
+include *.rst
+include *.txt
 recursive-include ambition_rando/templates *
+recursive-include ambition_rando/static *
