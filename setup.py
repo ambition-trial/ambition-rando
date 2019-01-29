@@ -2,15 +2,21 @@
 import os
 from setuptools import setup
 from setuptools import find_packages
+from os.path import join, dirname, abspath, normpath
 
-with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
+with open(join(dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
 
-with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as f:
+with open(join(dirname(__file__), 'VERSION')) as f:
     VERSION = f.read()
 
+tests_require = ["pytest"]
+with open(join(dirname(abspath(__file__)), 'requirements.txt')) as f:
+    for line in f:
+        tests_require.append(line.strip())
+
 # allow setup.py to be run from any path
-os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+os.chdir(normpath(join(abspath(__file__), os.pardir)))
 
 setup(
     name='ambition-rando',
@@ -47,4 +53,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
+    python_requires=">=3.7",
+    tests_require=tests_require,
+    test_suite='runtests.main',
 )
