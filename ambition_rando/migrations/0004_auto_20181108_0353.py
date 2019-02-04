@@ -6,14 +6,14 @@ import uuid
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('ambition_rando', '0003_auto_20180815_0653'),
-    ]
+    dependencies = [("ambition_rando", "0003_auto_20180815_0653")]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalrandomizationlist',
-            name='history_id',
-            field=models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False),
-        ),
+            model_name="historicalrandomizationlist",
+            name="history_id",
+            field=models.UUIDField(
+                default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+            ),
+        )
     ]

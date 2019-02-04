@@ -39,52 +39,54 @@ class RandomizationListImporter:
             RandomizationList.objects.all().delete()
         if RandomizationList.objects.all().count() > 0 and not add:
             raise RandomizationListImportError(
-                'Not importing CSV. RandomizationList model is not empty!')
-        with open(path, 'r') as csvfile:
+                "Not importing CSV. RandomizationList model is not empty!"
+            )
+        with open(path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
-            sids = [row['sid'] for row in reader]
+            sids = [row["sid"] for row in reader]
         if len(sids) != len(list(set(sids))):
-            raise RandomizationListImportError(
-                'Invalid file. Detected duplicate SIDs')
+            raise RandomizationListImportError("Invalid file. Detected duplicate SIDs")
         self.sid_count = len(sids)
         self.site_names = {obj.name: obj.name for obj in Site.objects.all()}
         if not self.site_names:
             raise RandomizationListImportError(
-                'No sites have been imported. See ambition-sites and .'
-                'method "add_or_update_django_sites".')
+                "No sites have been imported. See ambition-sites and ."
+                'method "add_or_update_django_sites".'
+            )
 
         objs = []
-        with open(path, 'r') as csvfile:
+        with open(path, "r") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in tqdm(reader, total=self.sid_count):
                 row = {k: v.strip() for k, v in row.items()}
 
                 try:
-                    RandomizationList.objects.get(sid=row['sid'])
+                    RandomizationList.objects.get(sid=row["sid"])
                 except ObjectDoesNotExist:
                     drug_assignment = get_drug_assignment(row)
                     obj = RandomizationList(
                         id=uuid4(),
-                        sid=row['sid'],
+                        sid=row["sid"],
                         drug_assignment=drug_assignment,
                         site_name=self.get_site_name(row),
-                        allocation=get_allocation(row, drug_assignment))
+                        allocation=get_allocation(row, drug_assignment),
+                    )
                     objs.append(obj)
             RandomizationList.objects.bulk_create(objs)
             assert self.sid_count == RandomizationList.objects.all().count()
 
         if verbose:
             count = RandomizationList.objects.all().count()
-            sys.stdout.write(style.SUCCESS(
-                f'(*) Imported {count} SIDs from {path}.\n'))
+            sys.stdout.write(style.SUCCESS(f"(*) Imported {count} SIDs from {path}.\n"))
 
     def get_site_name(self, row):
         """Returns the site name or raises.
         """
         try:
-            site_name = self.site_names[row['site_name']]
+            site_name = self.site_names[row["site_name"]]
         except KeyError:
             raise RandomizationListImportError(
                 f'Invalid site. Got {row["site_name"]}. '
-                f'Expected one of {self.site_names.keys()}')
+                f"Expected one of {self.site_names.keys()}"
+            )
         return site_name

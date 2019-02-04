@@ -5,13 +5,15 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('ambition_rando', '0001_initial'),
-    ]
+    dependencies = [("ambition_rando", "0001_initial")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='historicalrandomizationlist',
-            options={'get_latest_by': 'history_date', 'ordering': ('-history_date', '-history_id'), 'verbose_name': 'historical randomization list'},
-        ),
+            name="historicalrandomizationlist",
+            options={
+                "get_latest_by": "history_date",
+                "ordering": ("-history_date", "-history_id"),
+                "verbose_name": "historical randomization list",
+            },
+        )
     ]

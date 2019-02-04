@@ -5,13 +5,16 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('ambition_rando', '0002_auto_20180706_1519'),
-    ]
+    dependencies = [("ambition_rando", "0002_auto_20180706_1519")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='randomizationlist',
-            options={'ordering': ('site_name', 'sid'), 'permissions': (('display_randomization', 'Can display randomization'),)},
-        ),
+            name="randomizationlist",
+            options={
+                "ordering": ("site_name", "sid"),
+                "permissions": (
+                    ("display_randomization", "Can display randomization"),
+                ),
+            },
+        )
     ]

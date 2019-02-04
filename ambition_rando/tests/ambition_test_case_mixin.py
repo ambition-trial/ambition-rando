@@ -39,11 +39,12 @@ class AmbitionTestCaseMixin(SiteTestCaseMixin):
         consent_datetime = consent_datetime or get_utcnow()
         first_name = first_name or fake.first_name()
         subject_screening = mommy.make_recipe(
-            "ambition_screening.subjectscreening",
-            report_datetime=consent_datetime)
+            "ambition_screening.subjectscreening", report_datetime=consent_datetime
+        )
         consent = mommy.make_recipe(
             "ambition_subject.subjectconsent",
             screening_identifier=subject_screening.screening_identifier,
             consent_datetime=consent_datetime,
-            first_name=first_name)
+            first_name=first_name,
+        )
         return consent.subject_identifier

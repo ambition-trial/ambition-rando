@@ -15,7 +15,6 @@ class RandomizationListModelError(Exception):
 
 
 class RandomizationListManager(models.Manager):
-
     def get_by_natural_key(self, sid):
         return self.get(sid=sid)
 
@@ -23,23 +22,20 @@ class RandomizationListManager(models.Manager):
 class RandomizationList(BaseUuidModel):
 
     subject_identifier = models.CharField(
-        verbose_name="Subject Identifier",
-        max_length=50,
-        null=True,
-        unique=True)
+        verbose_name="Subject Identifier", max_length=50, null=True, unique=True
+    )
 
     sid = models.IntegerField(unique=True)
 
     drug_assignment = EncryptedTextField(
-        choices=(
-            (SINGLE_DOSE, SINGLE_DOSE_NAME),
-            (CONTROL, CONTROL_NAME)))
+        choices=((SINGLE_DOSE, SINGLE_DOSE_NAME), (CONTROL, CONTROL_NAME))
+    )
 
     site_name = models.CharField(max_length=100)
 
     allocation = EncryptedTextField(
-        verbose_name='Original integer allocation',
-        null=True)
+        verbose_name="Original integer allocation", null=True
+    )
 
     allocated = models.BooleanField(default=False)
 
@@ -47,8 +43,7 @@ class RandomizationList(BaseUuidModel):
 
     allocated_user = models.CharField(max_length=50, null=True)
 
-    allocated_site = models.ForeignKey(
-        Site, null=True, on_delete=models.CASCADE)
+    allocated_site = models.ForeignKey(Site, null=True, on_delete=models.CASCADE)
 
     verified = models.BooleanField(default=False)
 
@@ -60,10 +55,10 @@ class RandomizationList(BaseUuidModel):
 
     history = HistoricalRecords()
 
-    on_site = CurrentSiteManager('allocated_site')
+    on_site = CurrentSiteManager("allocated_site")
 
     def __str__(self):
-        return f'{self.site_name}.{self.sid} subject={self.subject_identifier}'
+        return f"{self.site_name}.{self.sid} subject={self.subject_identifier}"
 
     def save(self, *args, **kwargs):
         try:
@@ -75,13 +70,14 @@ class RandomizationList(BaseUuidModel):
         except ObjectDoesNotExist:
             site_names = [obj.name for obj in Site.objects.all()]
             raise RandomizationListModelError(
-                f'Invalid site name. Got {self.site_name}. '
-                f'Expected one of {site_names}.')
+                f"Invalid site name. Got {self.site_name}. "
+                f"Expected one of {site_names}."
+            )
         super().save(*args, **kwargs)
 
     @property
     def short_label(self):
-        return (f'{self.drug_assignment} SID:{self.site_name}.{self.sid}')
+        return f"{self.drug_assignment} SID:{self.site_name}.{self.sid}"
 
     @property
     def treatment_description(self):
@@ -89,14 +85,12 @@ class RandomizationList(BaseUuidModel):
             return CONTROL_NAME
         elif self.drug_assignment == SINGLE_DOSE:
             return SINGLE_DOSE_NAME
-        raise RandomizationError(
-            f'Invalid drug assignment. Got {self.drug_assignment}')
+        raise RandomizationError(f"Invalid drug assignment. Got {self.drug_assignment}")
 
     def natural_key(self):
-        return (self.sid, )
+        return (self.sid,)
 
     class Meta:
-        ordering = ('site_name', 'sid', )
-        unique_together = ('site_name', 'sid')
-        permissions = (("display_randomization",
-                        "Can display randomization"),)
+        ordering = ("site_name", "sid")
+        unique_together = ("site_name", "sid")
+        permissions = (("display_randomization", "Can display randomization"),)
