@@ -36,5 +36,8 @@ To rebuild the records in RandomizationList:
 .. |travis| image:: https://travis-ci.com/ambition-trial/ambition-rando.svg?branch=develop
     :target: https://travis-ci.com/ambition-trial/ambition-rando
     
-.. |coverage| image:: https://coveralls.io/repos/github/ambition-trial/ambition-rando/badge.svg?branch=develop
-    :target: https://coveralls.io/github/ambition-trial/ambition-rando?branch=develop
+.. |codecov| image:: https://codecov.io/gh/ambition-trial/ambition-rando/branch/develop/graph/badge.svg
+  :target: https://codecov.io/gh/ambition-trial/ambition-rando
+
+.. |downloads| image:: https://pepy.tech/badge/ambition-rando
+   :target: https://pepy.tech/project/ambition-rando
