@@ -5,7 +5,9 @@ from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_base.utils import get_utcnow
 
 
-class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, SiteModelMixin, BaseUuidModel):
+class SubjectConsent(
+    UpdatesOrCreatesRegistrationModelMixin, SiteModelMixin, BaseUuidModel
+):
 
     subject_identifier = models.CharField(max_length=25)
 

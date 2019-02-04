@@ -23,9 +23,11 @@ class AllocationError(Exception):
 
 class Randomizer:
 
-    model = 'ambition_rando.randomizationlist'
+    model = "ambition_rando.randomizationlist"
 
-    def __init__(self, subject_identifier=None, report_datetime=None, site=None, user=None):
+    def __init__(
+        self, subject_identifier=None, report_datetime=None, site=None, user=None
+    ):
         self._model_obj = None
         self._registered_subject = None
         self.subject_identifier = subject_identifier
@@ -48,8 +50,9 @@ class Randomizer:
     def check_loaded(self):
         if self.model_cls.objects.all().count() == 0:
             raise RandomizationListError(
-                f'Randomization list has not been loaded. '
-                f'Run the management command.')
+                f"Randomization list has not been loaded. "
+                f"Run the management command."
+            )
 
     @property
     def model_obj(self):
@@ -59,21 +62,29 @@ class Randomizer:
         if not self._model_obj:
             try:
                 obj = self.model_cls.objects.get(
-                    subject_identifier=self.subject_identifier)
+                    subject_identifier=self.subject_identifier
+                )
             except ObjectDoesNotExist:
-                self._model_obj = self.model_cls.objects.filter(
-                    subject_identifier__isnull=True,
-                    site_name=self.site.name).order_by('sid').first()
+                self._model_obj = (
+                    self.model_cls.objects.filter(
+                        subject_identifier__isnull=True, site_name=self.site.name
+                    )
+                    .order_by("sid")
+                    .first()
+                )
                 if not self._model_obj:
                     raise AllocationError(
-                        f'Randomization failed. No additional SIDs available for '
-                        f'site \'{self.site.name}\'.')
+                        f"Randomization failed. No additional SIDs available for "
+                        f"site '{self.site.name}'."
+                    )
             else:
                 raise AlreadyRandomized(
-                    f'Subject already randomized. '
-                    f'Got {obj.subject_identifier} SID={obj.sid}. '
-                    f'Something is wrong. Are registered_subject and '
-                    f'{self.model} out of sync?.', code=self.model)
+                    f"Subject already randomized. "
+                    f"Got {obj.subject_identifier} SID={obj.sid}. "
+                    f"Something is wrong. Are registered_subject and "
+                    f"{self.model} out of sync?.",
+                    code=self.model,
+                )
         return self._model_obj
 
     def randomize(self):
@@ -87,34 +98,40 @@ class Randomizer:
         self._model_obj = self.model_cls.objects.get(
             subject_identifier=self.subject_identifier,
             allocated=True,
-            allocated_datetime=self.allocated_datetime)
+            allocated_datetime=self.allocated_datetime,
+        )
         self.registered_subject.sid = self.model_obj.sid
         self.registered_subject.randomization_datetime = (
-            self.model_obj.allocated_datetime)
+            self.model_obj.allocated_datetime
+        )
         self.registered_subject.registration_status = RANDOMIZED
         self.registered_subject.save()
         # requery
         self._registered_subject = RegisteredSubject.objects.get(
-            subject_identifier=self.subject_identifier,
-            sid=self.model_obj.sid)
+            subject_identifier=self.subject_identifier, sid=self.model_obj.sid
+        )
 
     @property
     def registered_subject(self):
         if not self._registered_subject:
             try:
                 self._registered_subject = RegisteredSubject.objects.get(
-                    subject_identifier=self.subject_identifier,
-                    sid__isnull=True)
+                    subject_identifier=self.subject_identifier, sid__isnull=True
+                )
             except ObjectDoesNotExist:
                 try:
                     obj = RegisteredSubject.objects.get(
-                        subject_identifier=self.subject_identifier)
+                        subject_identifier=self.subject_identifier
+                    )
                 except ObjectDoesNotExist:
                     raise RandomizationError(
-                        f'Subject does not exist. Got {self.subject_identifier}')
+                        f"Subject does not exist. Got {self.subject_identifier}"
+                    )
                 else:
                     raise AlreadyRandomized(
-                        f'Subject already randomized. See RegisteredSubject. '
-                        f'Got {obj.subject_identifier} '
-                        f'SID={obj.sid}', code=RegisteredSubject._meta.label_lower)
+                        f"Subject already randomized. See RegisteredSubject. "
+                        f"Got {obj.subject_identifier} "
+                        f"SID={obj.sid}",
+                        code=RegisteredSubject._meta.label_lower,
+                    )
         return self._registered_subject
