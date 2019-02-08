@@ -6,6 +6,8 @@ from edc_model_admin.model_admin_audit_fields_mixin import (
 
 from .models import RandomizationList
 
+admin.site.disable_action("delete_selected")
+
 
 @admin.register(RandomizationList)
 class RandomizationListModelAdmin(admin.ModelAdmin):
