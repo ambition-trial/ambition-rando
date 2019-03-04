@@ -1,8 +1,8 @@
 from django.db import models
-from edc_base.model_mixins import BaseUuidModel
-from edc_base.sites.site_model_mixin import SiteModelMixin
+from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
-from edc_base.utils import get_utcnow
+from edc_sites.models import SiteModelMixin
+from edc_utils import get_utcnow
 
 
 class SubjectConsent(

@@ -1,8 +1,8 @@
 from ambition_sites import ambition_sites, fqdn
-from edc_base import get_utcnow
-from edc_base.tests import SiteTestCaseMixin
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
 from faker import Faker
 from model_mommy import mommy
 
