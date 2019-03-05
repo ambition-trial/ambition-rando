@@ -6,6 +6,12 @@ ambition-rando
 
 Randomization class and model for Ambition
 
+To load the randomization list:
+
+.. code-block:: python
+
+    python manage.py import_randomization_list
+
 
 To rebuild the records in RandomizationList:
 
