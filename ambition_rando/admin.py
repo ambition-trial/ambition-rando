@@ -26,7 +26,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
 
     search_fields = ("subject_identifier", "sid")
 
-    readonly_fields = (
+    readonly_fields = [
         "subject_identifier",
         "sid",
         "drug_assignment",
@@ -34,7 +34,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
         "allocated_user",
         "allocated_datetime",
         "allocated_site",
-    ) + audit_fields
+    ] + audit_fields
 
     def get_fieldsets(self, request, obj=None):
         if obj.subject_identifier:
