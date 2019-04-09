@@ -1,3 +1,0 @@
-edc-facility
-faker
-model-mommy
