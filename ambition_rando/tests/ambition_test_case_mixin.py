@@ -1,4 +1,7 @@
 from ambition_sites import ambition_sites, fqdn
+from ambition_rando.constants import SINGLE_DOSE, CONTROL
+from ambition_rando.utils import get_drug_assignment
+from django.apps import apps as django_apps
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
 from edc_sites.tests import SiteTestCaseMixin
@@ -48,3 +51,20 @@ class AmbitionTestCaseMixin(SiteTestCaseMixin):
             first_name=first_name,
         )
         return consent.subject_identifier
+
+    def get_subject_by_drug_assignment(self, drug_assignment):
+        RandomizationList = django_apps.get_model(
+            "ambition_rando.randomizationlist")
+        for _ in range(0, 4):
+            subject_identifier = self.create_subject()
+            obj = RandomizationList.objects.get(
+                subject_identifier=subject_identifier)
+            if get_drug_assignment({"drug_assignment": obj.drug_assignment}) == drug_assignment:
+                return subject_identifier
+        return None
+
+    def get_single_dose_subject(self):
+        return self.get_subject_by_drug_assignment(SINGLE_DOSE)
+
+    def get_control_subject(self):
+        return self.get_subject_by_drug_assignment(CONTROL)
