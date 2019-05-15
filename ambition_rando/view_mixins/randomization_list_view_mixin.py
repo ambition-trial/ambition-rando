@@ -2,6 +2,7 @@ from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
+from edc_identifier.utils import is_subject_identifier_or_raise
 
 from ..randomizer import RandomizationListError
 
@@ -13,7 +14,9 @@ class RandomizationListViewMixin(ContextMixin):
     @property
     def treatment_description(self):
         model_cls = django_apps.get_model(self.randomization_list_model)
-        subject_identifier = self.kwargs.get("subject_identifier")
+        subject_identifier = is_subject_identifier_or_raise(
+            self.kwargs.get("subject_identifier")
+        )
         try:
             obj = model_cls.objects.get(subject_identifier=subject_identifier)
         except ObjectDoesNotExist as e:
