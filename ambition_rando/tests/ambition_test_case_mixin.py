@@ -53,13 +53,14 @@ class AmbitionTestCaseMixin(SiteTestCaseMixin):
         return consent.subject_identifier
 
     def get_subject_by_drug_assignment(self, drug_assignment):
-        RandomizationList = django_apps.get_model(
-            "ambition_rando.randomizationlist")
+        RandomizationList = django_apps.get_model("ambition_rando.randomizationlist")
         for _ in range(0, 4):
             subject_identifier = self.create_subject()
-            obj = RandomizationList.objects.get(
-                subject_identifier=subject_identifier)
-            if get_drug_assignment({"drug_assignment": obj.drug_assignment}) == drug_assignment:
+            obj = RandomizationList.objects.get(subject_identifier=subject_identifier)
+            if (
+                get_drug_assignment({"drug_assignment": obj.drug_assignment})
+                == drug_assignment
+            ):
                 return subject_identifier
         return None
 
