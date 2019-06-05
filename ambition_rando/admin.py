@@ -37,7 +37,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
     ] + audit_fields
 
     def get_fieldsets(self, request, obj=None):
-        if obj.subject_identifier:
+        if obj and obj.subject_identifier:
             fieldsets = (
                 (
                     None,
