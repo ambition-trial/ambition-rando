@@ -1,4 +1,10 @@
-from django.conf.urls import url
 from django.contrib import admin
+from django.urls.conf import path
+from django.views.generic.base import RedirectView
 
-urlpatterns = [url(r"^admin/", admin.site.urls)]
+app_name = "ambition_rando"
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("", RedirectView.as_view(url="/ambition_rando/admin/"), name="home_url"),
+]

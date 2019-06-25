@@ -12,6 +12,7 @@ class AppConfig(DjangoAppConfig):
     verbose_name = "Ambition Randomization"
     include_in_administration = False
     has_exportable_data = True
+    include_in_administration_section = False
 
     def ready(self):
         register(randomization_list_check)
