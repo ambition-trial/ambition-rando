@@ -62,11 +62,13 @@ def import_allocations(
             obj = randomizationlist_model_cls(
                 id=uuid.uuid4(),
                 sid=last_sid + row["sid"],
-                assignment=row["assignment"],
+                drug_assignment=row["assignment"],
                 site_name=row["site"],
                 allocation=get_allocation(row["assignment"]),
             )
             objs.append(obj)
+        else:
+            raise AllocationError(f"SID already exists. Got {row['sid']}")
     if dry_run:
         print(objs)
     else:
@@ -86,18 +88,29 @@ def import_additional_sids_from_file(
         reader = csv.DictReader(f)
         for index, row in enumerate(reader, 1):
             row = {k: v.strip() for k, v in row.items()}
+            if int(row["sid"]) != last_sid + index:
+                raise AllocationError(
+                    f"Invalid SID. Calculated {last_sid + index}. Got {row['sid']}"
+                )
             try:
                 obj = randomizationlist_model_cls.objects.get(sid=last_sid + index)
             except ObjectDoesNotExist:
                 obj = randomizationlist_model_cls(
                     id=uuid.uuid4(),
                     sid=last_sid + index,
-                    assignment=row["assignment"],
+                    drug_assignment=row["assignment"],
                     site_name=row["site"],
                     allocation=get_allocation(row["assignment"]),
                 )
                 objs.append(obj)
+            else:
+                raise AllocationError(f"SID already exists. Got {row['sid']}")
+    print(f"* Adding {len(objs)} objects, SIDs {last_sid + 1} to {last_sid + index}.")
     if dry_run:
         print(objs)
     else:
         randomizationlist_model_cls.objects.bulk_create(objs)
+    print(
+        f"* Done. Added {len(objs)} objects, SIDs {last_sid + 1} "
+        f"to {last_sid + index}."
+    )
