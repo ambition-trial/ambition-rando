@@ -4,7 +4,7 @@ from ambition_rando.utils import get_drug_assignment
 from django.apps import apps as django_apps
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
-from edc_sites.tests import SiteTestCaseMixin
+from edc_sites import add_or_update_django_sites
 from edc_utils import get_utcnow
 from faker import Faker
 from model_mommy import mommy
@@ -15,19 +15,16 @@ from ..models import RandomizationList
 fake = Faker()
 
 
-class AmbitionTestCaseMixin(SiteTestCaseMixin):
-
-    fqdn = fqdn
-
-    default_sites = ambition_sites
-
-    site_names = [s[1] for s in default_sites]
+class AmbitionTestCaseMixin:
 
     import_randomization_list = True
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        add_or_update_django_sites(
+            apps=django_apps, sites=ambition_sites, fqdn=fqdn, verbose=False
+        )
         if cls.import_randomization_list:
             RandomizationListImporter(verbose=False)
         import_holidays(test=True)
