@@ -11,6 +11,7 @@ from model_mommy import mommy
 
 from ..randomization_list_importer import RandomizationListImporter
 from ..models import RandomizationList
+from django.contrib.sites.models import Site
 
 fake = Faker()
 
@@ -34,6 +35,10 @@ class AmbitionTestCaseMixin:
         super().tearDownClass()
         RandomizationList.objects.all().delete()
         Holiday.objects.all().delete()
+
+    @property
+    def site_names(self):
+        return [obj.name for obj in Site.objects.all()]
 
     def create_subject(self, consent_datetime=None, first_name=None):
         consent_datetime = consent_datetime or get_utcnow()

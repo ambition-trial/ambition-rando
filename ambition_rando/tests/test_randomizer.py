@@ -10,10 +10,10 @@ from tempfile import mkdtemp
 
 from ..models import RandomizationList
 from ..randomization_list_importer import RandomizationListImporter
+from ..randomization_list_verifier import RandomizationListVerifier
 from ..randomizer import RandomizationError, AllocationError
 from ..randomizer import Randomizer, RandomizationListError, AlreadyRandomized
 from ..utils import InvalidDrugAssignment
-from ..randomization_list_verifier import RandomizationListVerifier
 from .ambition_test_case_mixin import AmbitionTestCaseMixin
 from .make_test_list import make_test_list
 from .models import SubjectConsent
