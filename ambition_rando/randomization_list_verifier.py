@@ -5,7 +5,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import OperationalError, ProgrammingError
 
-from .utils import get_drug_assignment
+from .utils import get_assignment
 
 
 class RandomizationListVerifier:
@@ -48,7 +48,7 @@ class RandomizationListVerifier:
         message = None
 
         with open(self.app_config.randomization_list_path, "r") as f:
-            fieldnames = ["sid", "drug_assignment", "site_name"]
+            fieldnames = ["sid", "assignment", "site_name"]
             reader = csv.DictReader(f, fieldnames=fieldnames)
             for index, row in enumerate(reader):
                 row = {k: v.strip() for k, v in row.items() if k in fieldnames}
@@ -72,9 +72,9 @@ class RandomizationListVerifier:
                         )
                     break
                 else:
-                    drug_assignment = get_drug_assignment(row)
+                    assignment = get_assignment(row)
                     if (
-                        obj.drug_assignment != drug_assignment
+                        obj.assignment != assignment
                         or obj.site_name != row["site_name"]
                     ):
                         message = (
@@ -82,13 +82,13 @@ class RandomizationListVerifier:
                             f"does not match model data. See file "
                             f"{self.app_config.randomization_list_path}. "
                             f"Resolve this issue before using the system. "
-                            f"Got {drug_assignment} != '{obj.drug_assignment}'."
+                            f"Got {assignment} != '{obj.assignment}'."
                         )
                         break
         if not message:
             with open(self.app_config.randomization_list_path, "r") as f:
                 reader = csv.DictReader(
-                    f, fieldnames=["sid", "drug_assignment", "site_name"]
+                    f, fieldnames=["sid", "assignment", "site_name"]
                 )
                 lines = sum(1 for row in reader)
             if self.count != lines - 1:

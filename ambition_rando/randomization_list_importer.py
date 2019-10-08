@@ -10,7 +10,7 @@ from tqdm import tqdm
 from uuid import uuid4
 
 from .models import RandomizationList
-from .utils import get_drug_assignment, get_allocation
+from .utils import get_assignment, get_allocation
 
 style = color_style()
 
@@ -25,7 +25,7 @@ class RandomizationListImporter:
     into model RandomizationList.
 
     Format:
-        sid,drug_assignment,site_name, orig_site, orig_allocation, orig_desc
+        sid,assignment,site_name, orig_site, orig_allocation, orig_desc
         1,single_dose,gaborone
         2,two_doses,gaborone
         ...
@@ -63,13 +63,13 @@ class RandomizationListImporter:
                 try:
                     RandomizationList.objects.get(sid=row["sid"])
                 except ObjectDoesNotExist:
-                    drug_assignment = get_drug_assignment(row)
+                    assignment = get_assignment(row)
                     obj = RandomizationList(
                         id=uuid4(),
                         sid=row["sid"],
-                        drug_assignment=drug_assignment,
+                        assignment=assignment,
                         site_name=self.get_site_name(row),
-                        allocation=get_allocation(row, drug_assignment),
+                        allocation=get_allocation(row, assignment),
                     )
                     objs.append(obj)
             RandomizationList.objects.bulk_create(objs)

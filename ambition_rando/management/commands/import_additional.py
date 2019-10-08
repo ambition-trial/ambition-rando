@@ -62,7 +62,7 @@ def import_allocations(
             obj = randomizationlist_model_cls(
                 id=uuid.uuid4(),
                 sid=last_sid + row["sid"],
-                drug_assignment=row["assignment"],
+                assignment=row["assignment"],
                 site_name=row["site"],
                 allocation=get_allocation(row["assignment"]),
             )
@@ -98,7 +98,7 @@ def import_additional_sids_from_file(
                 obj = randomizationlist_model_cls(
                     id=uuid.uuid4(),
                     sid=last_sid + index,
-                    drug_assignment=row["assignment"],
+                    assignment=row["assignment"],
                     site_name=row["site"],
                     allocation=get_allocation(row["assignment"]),
                 )

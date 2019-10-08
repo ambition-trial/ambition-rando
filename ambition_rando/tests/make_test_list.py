@@ -5,12 +5,12 @@ import random
 from tempfile import mkdtemp
 
 
-default_drug_assignments = ["single_dose", "control"]
+default_assignments = ["single_dose", "control"]
 
 
 def make_test_list(
     full_path=None,
-    drug_assignments=None,
+    assignments=None,
     site_names=None,
     count=None,
     first_sid=None,
@@ -27,19 +27,15 @@ def make_test_list(
 
     if not full_path:
         full_path = os.path.join(mkdtemp(), "randomizationlist.csv")
-    drug_assignments = drug_assignments or default_drug_assignments
+    assignments = assignments or default_assignments
     with open(full_path, "w") as f:
-        writer = csv.DictWriter(f, fieldnames=["sid", "drug_assignment", "site_name"])
+        writer = csv.DictWriter(f, fieldnames=["sid", "assignment", "site_name"])
         writer.writeheader()
         n = 0
         for i in range(first_sid, count + first_sid):
             n += 1
-            drug_assignment = random.choice(drug_assignments)
+            assignment = random.choice(assignments)
             writer.writerow(
-                dict(
-                    sid=i,
-                    drug_assignment=drug_assignment,
-                    site_name=next(gen_site_name),
-                )
+                dict(sid=i, assignment=assignment, site_name=next(gen_site_name))
             )
     return full_path

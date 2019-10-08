@@ -26,7 +26,7 @@ class RandomizationList(BaseUuidModel):
 
     sid = models.IntegerField(unique=True)
 
-    drug_assignment = EncryptedTextField(
+    assignment = EncryptedTextField(
         choices=((SINGLE_DOSE, SINGLE_DOSE_NAME), (CONTROL, CONTROL_NAME))
     )
 
@@ -76,15 +76,15 @@ class RandomizationList(BaseUuidModel):
 
     @property
     def short_label(self):
-        return f"{self.drug_assignment} SID:{self.site_name}.{self.sid}"
+        return f"{self.assignment} SID:{self.site_name}.{self.sid}"
 
     @property
     def treatment_description(self):
-        if self.drug_assignment == CONTROL:
+        if self.assignment == CONTROL:
             return CONTROL_NAME
-        elif self.drug_assignment == SINGLE_DOSE:
+        elif self.assignment == SINGLE_DOSE:
             return SINGLE_DOSE_NAME
-        raise RandomizationError(f"Invalid drug assignment. Got {self.drug_assignment}")
+        raise RandomizationError(f"Invalid assignment. Got {self.assignment}")
 
     def natural_key(self):
         return (self.sid,)

@@ -7,42 +7,39 @@ class InvalidDrugAssignment(Exception):
     pass
 
 
-def get_drug_assignment(row):
-    """Returns drug_assignment as a word; 'single_dose' or 'control'.
+def get_assignment(row):
+    """Returns assignment as a word; 'single_dose' or 'control'.
 
-    Converts a numeric drug_assignment or allocation
+    Converts a numeric assignment or allocation
     to a word.
     """
-    drug_assignment = row["drug_assignment"]
-    if drug_assignment not in [SINGLE_DOSE, CONTROL]:
-        if int(row["drug_assignment"]) == 2:
-            drug_assignment = SINGLE_DOSE
-        elif int(row["drug_assignment"]) == 1:
-            drug_assignment = CONTROL
+    assignment = row["assignment"]
+    if assignment not in [SINGLE_DOSE, CONTROL]:
+        if int(row["assignment"]) == 2:
+            assignment = SINGLE_DOSE
+        elif int(row["assignment"]) == 1:
+            assignment = CONTROL
         else:
             raise InvalidDrugAssignment(
-                f"Invalid drug assignment. "
-                f'Got \'{row["drug_assignment"]}\'. Expected 1 or 2.'
+                f"Invalid assignment. " f'Got \'{row["assignment"]}\'. Expected 1 or 2.'
             )
-    return drug_assignment
+    return assignment
 
 
-def get_allocation(row, drug_assignment):
+def get_allocation(row, assignment):
     """Returns an allocation as 1 or 2 for the given
-    drug assignment or raises.
+    assignment or raises.
     """
 
     try:
         allocation = row["orig_allocation"]
     except KeyError:
-        if drug_assignment == SINGLE_DOSE:
+        if assignment == SINGLE_DOSE:
             allocation = "2"
-        elif drug_assignment == CONTROL:
+        elif assignment == CONTROL:
             allocation = "1"
         else:
-            raise InvalidDrugAssignment(
-                f"Invalid drug_assignment. Got {drug_assignment}."
-            )
+            raise InvalidDrugAssignment(f"Invalid assignment. Got {assignment}.")
     return allocation
 
 
