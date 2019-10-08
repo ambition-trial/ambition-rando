@@ -1,33 +1,31 @@
 from ambition_sites import ambition_sites, fqdn
 from ambition_rando.constants import SINGLE_DOSE, CONTROL
-from ambition_rando.utils import get_drug_assignment
+from ambition_rando.utils import get_assignment
 from django.apps import apps as django_apps
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
-from edc_sites.tests import SiteTestCaseMixin
+from edc_sites import add_or_update_django_sites
 from edc_utils import get_utcnow
 from faker import Faker
 from model_mommy import mommy
 
 from ..randomization_list_importer import RandomizationListImporter
 from ..models import RandomizationList
+from django.contrib.sites.models import Site
 
 fake = Faker()
 
 
-class AmbitionTestCaseMixin(SiteTestCaseMixin):
-
-    fqdn = fqdn
-
-    default_sites = ambition_sites
-
-    site_names = [s[1] for s in default_sites]
+class AmbitionTestCaseMixin:
 
     import_randomization_list = True
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        add_or_update_django_sites(
+            apps=django_apps, sites=ambition_sites, fqdn=fqdn, verbose=False
+        )
         if cls.import_randomization_list:
             RandomizationListImporter(verbose=False)
         import_holidays(test=True)
@@ -37,6 +35,10 @@ class AmbitionTestCaseMixin(SiteTestCaseMixin):
         super().tearDownClass()
         RandomizationList.objects.all().delete()
         Holiday.objects.all().delete()
+
+    @property
+    def site_names(self):
+        return [obj.name for obj in Site.objects.all()]
 
     def create_subject(self, consent_datetime=None, first_name=None):
         consent_datetime = consent_datetime or get_utcnow()
@@ -52,20 +54,17 @@ class AmbitionTestCaseMixin(SiteTestCaseMixin):
         )
         return consent.subject_identifier
 
-    def get_subject_by_drug_assignment(self, drug_assignment):
+    def get_subject_by_assignment(self, assignment):
         RandomizationList = django_apps.get_model("ambition_rando.randomizationlist")
         for _ in range(0, 4):
             subject_identifier = self.create_subject()
             obj = RandomizationList.objects.get(subject_identifier=subject_identifier)
-            if (
-                get_drug_assignment({"drug_assignment": obj.drug_assignment})
-                == drug_assignment
-            ):
+            if get_assignment({"assignment": obj.assignment}) == assignment:
                 return subject_identifier
         return None
 
     def get_single_dose_subject(self):
-        return self.get_subject_by_drug_assignment(SINGLE_DOSE)
+        return self.get_subject_by_assignment(SINGLE_DOSE)
 
     def get_control_subject(self):
-        return self.get_subject_by_drug_assignment(CONTROL)
+        return self.get_subject_by_assignment(CONTROL)

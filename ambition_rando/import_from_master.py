@@ -25,7 +25,7 @@ def import_from_master(path=None, source_prefix=None, destination_filename=None)
             reader = csv.DictReader(source)
             fieldnames = [
                 "sid",
-                "drug_assignment",
+                "assignment",
                 "site_name",
                 "orig_site",
                 "orig_allocation",
@@ -37,7 +37,7 @@ def import_from_master(path=None, source_prefix=None, destination_filename=None)
             for row in reader:
                 rowdict = dict(
                     sid=row.get("random_number"),
-                    drug_assignment=row.get("allocation"),
+                    assignment=row.get("allocation"),
                     site_name=get_site_name(row.get("site")),
                     orig_site=get_site_name(row.get("site"), row=row),
                     orig_allocation=row.get("allocation"),

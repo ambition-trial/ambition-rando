@@ -29,7 +29,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
     readonly_fields = [
         "subject_identifier",
         "sid",
-        "drug_assignment",
+        "assignment",
         "allocated",
         "allocated_user",
         "allocated_datetime",
@@ -45,7 +45,7 @@ class RandomizationListModelAdmin(admin.ModelAdmin):
                         "fields": (
                             "subject_identifier",
                             "sid",
-                            "drug_assignment",
+                            "assignment",
                             "allocated",
                             "allocated_user",
                             "allocated_datetime",
