@@ -42,7 +42,9 @@ class RandomizationList(BaseUuidModel):
 
     allocated_user = models.CharField(max_length=50, null=True)
 
-    allocated_site = models.ForeignKey(Site, null=True, on_delete=models.CASCADE)
+    allocated_site = models.ForeignKey(
+        Site, null=True, on_delete=models.CASCADE, related_name="+"
+    )
 
     verified = models.BooleanField(default=False)
 
@@ -92,4 +94,4 @@ class RandomizationList(BaseUuidModel):
     class Meta:
         ordering = ("site_name", "sid")
         unique_together = ("site_name", "sid")
-        permissions = (("display_randomization", "Can display randomization"),)
+        permissions = (("display_assignment", "Can display assignment"),)
