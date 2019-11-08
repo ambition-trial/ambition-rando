@@ -5,10 +5,13 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
+from edc_randomization.utils import (
+    get_randomizationlist_model,
+    get_randomizationlist_model_name,
+)
 from random import shuffle
 from tempfile import mkdtemp
 
-from ..models import RandomizationList
 from ..randomization_list_importer import RandomizationListImporter
 from ..randomization_list_verifier import RandomizationListVerifier
 from ..randomizer import RandomizationError, AllocationError
@@ -17,6 +20,8 @@ from ..utils import InvalidDrugAssignment
 from .ambition_test_case_mixin import AmbitionTestCaseMixin
 from .make_test_list import make_test_list
 from .models import SubjectConsent
+
+RandomizationList = get_randomizationlist_model()
 
 
 class TestRandomizer(AmbitionTestCaseMixin, TestCase):
@@ -156,7 +161,7 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
                 site=subject_consent.site,
                 user=subject_consent.user_modified,
             )
-        self.assertEqual(cm.exception.code, "ambition_rando.randomizationlist")
+        self.assertEqual(cm.exception.code, get_randomizationlist_model_name())
 
     @override_settings(SITE_ID=40)
     def test_error_condition2(self):
@@ -181,7 +186,7 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
                 site=subject_consent.site,
                 user=subject_consent.user_modified,
             )
-        self.assertEqual(cm.exception.code, "ambition_rando.randomizationlist")
+        self.assertEqual(cm.exception.code, get_randomizationlist_model_name())
 
     def test_error_condition3(self):
         """Assert raises if RandomizationList not updated correctly.

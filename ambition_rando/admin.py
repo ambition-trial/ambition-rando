@@ -3,8 +3,9 @@ from edc_model_admin.model_admin_audit_fields_mixin import (
     audit_fieldset_tuple,
     audit_fields,
 )
+from edc_randomization.utils import get_randomizationlist_model
 
-from .models import RandomizationList
+RandomizationList = get_randomizationlist_model()
 
 
 @admin.register(RandomizationList)

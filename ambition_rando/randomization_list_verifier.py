@@ -4,6 +4,7 @@ import os
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import OperationalError, ProgrammingError
+from edc_randomization.utils import get_randomizationlist_model_name
 
 from .utils import get_assignment
 
@@ -14,7 +15,7 @@ class RandomizationListVerifier:
     """
 
     app_label = "ambition_rando"
-    model = "ambition_rando.randomizationlist"
+    model = get_randomizationlist_model_name()
 
     def __init__(self):
         self.message = None

@@ -6,10 +6,10 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
+from edc_randomization.utils import get_randomizationlist_model
 from tqdm import tqdm
 from uuid import uuid4
 
-from .models import RandomizationList
 from .utils import get_assignment, get_allocation
 
 style = color_style()
@@ -35,6 +35,7 @@ class RandomizationListImporter:
         verbose = True if verbose is None else verbose
         path = path or settings.RANDOMIZATION_LIST_PATH
         path = os.path.expanduser(path)
+        RandomizationList = get_randomizationlist_model()
         if overwrite:
             RandomizationList.objects.all().delete()
         if RandomizationList.objects.all().count() > 0 and not add:

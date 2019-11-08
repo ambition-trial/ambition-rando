@@ -2,8 +2,10 @@ from ambition_sites import ambition_sites, fqdn
 from ambition_rando.constants import SINGLE_DOSE, CONTROL
 from ambition_rando.utils import get_assignment
 from django.apps import apps as django_apps
+from django.contrib.sites.models import Site
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
+from edc_randomization.utils import get_randomizationlist_model
 from edc_sites import add_or_update_django_sites
 from edc_utils import get_utcnow
 from faker import Faker
@@ -11,7 +13,6 @@ from model_mommy import mommy
 
 from ..randomization_list_importer import RandomizationListImporter
 from ..models import RandomizationList
-from django.contrib.sites.models import Site
 
 fake = Faker()
 
@@ -55,7 +56,8 @@ class AmbitionTestCaseMixin:
         return consent.subject_identifier
 
     def get_subject_by_assignment(self, assignment):
-        RandomizationList = django_apps.get_model("ambition_rando.randomizationlist")
+        get_randomizationlist_model
+        RandomizationList = get_randomizationlist_model()
         for _ in range(0, 4):
             subject_identifier = self.create_subject()
             obj = RandomizationList.objects.get(subject_identifier=subject_identifier)

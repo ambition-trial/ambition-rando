@@ -1,5 +1,5 @@
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from edc_randomization.utils import get_randomizationlist_model
 from edc_registration.models import RegisteredSubject
 
 from .constants import RANDOMIZED
@@ -22,9 +22,6 @@ class AllocationError(Exception):
 
 
 class Randomizer:
-
-    model = "ambition_rando.randomizationlist"
-
     def __init__(
         self, subject_identifier=None, report_datetime=None, site=None, user=None
     ):
@@ -34,7 +31,7 @@ class Randomizer:
         self.allocated_datetime = report_datetime
         self.site = site
         self.user = user
-        self.model_cls = django_apps.get_model(self.model)
+        self.model_cls = get_randomizationlist_model()
         self.check_loaded()
         # force query, will raise if already randomized
         self.registered_subject
@@ -82,8 +79,8 @@ class Randomizer:
                     f"Subject already randomized. "
                     f"Got {obj.subject_identifier} SID={obj.sid}. "
                     f"Something is wrong. Are registered_subject and "
-                    f"{self.model} out of sync?.",
-                    code=self.model,
+                    f"{self.model_cls._meta.label_lower} out of sync?.",
+                    code=self.model_cls._meta.label_lower,
                 )
         return self._model_obj
 
