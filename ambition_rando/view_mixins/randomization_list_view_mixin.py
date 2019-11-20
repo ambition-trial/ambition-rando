@@ -3,13 +3,14 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 from edc_identifier.utils import is_subject_identifier_or_raise
+from edc_randomization.utils import get_randomizationlist_model_name
 
 from ..randomizer import RandomizationListError
 
 
 class RandomizationListViewMixin(ContextMixin):
 
-    randomization_list_model = "ambition_rando.randomizationlist"
+    randomization_list_model = get_randomizationlist_model_name()
 
     @property
     def treatment_description(self):

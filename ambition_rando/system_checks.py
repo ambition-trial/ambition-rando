@@ -9,8 +9,7 @@ from .randomization_list_verifier import RandomizationListVerifier
 
 err = namedtuple("Err", "id cls")
 
-error_configs = dict(randomization_list_check=err(
-    "ambition_edc.W001", Warning))
+error_configs = dict(randomization_list_check=err("ambition_edc.W001", Warning))
 
 
 def randomization_list_check(app_configs, **kwargs):
@@ -24,8 +23,7 @@ def randomization_list_check(app_configs, **kwargs):
     ):
         error_msg = RandomizationListVerifier().message
         if error_msg:
-            errors.append(
-                error.cls(error_msg, hint=None, obj=None, id=error.id))
+            errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))
     if not settings.DEBUG:
         if settings.ETC_DIR not in settings.RANDOMIZATION_LIST_PATH:
             errors.append(
