@@ -7,27 +7,35 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ambition_rando', '0005_auto_20190305_0123'),
+        ("ambition_rando", "0005_auto_20190305_0123"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='randomizationlist',
-            options={'ordering': ('site_name', 'sid'), 'permissions': (('display_assignment', 'Can display assignment'),)},
+            name="randomizationlist",
+            options={
+                "ordering": ("site_name", "sid"),
+                "permissions": (("display_assignment", "Can display assignment"),),
+            },
         ),
         migrations.RenameField(
-            model_name='historicalrandomizationlist',
-            old_name='drug_assignment',
-            new_name='assignment',
+            model_name="historicalrandomizationlist",
+            old_name="drug_assignment",
+            new_name="assignment",
         ),
         migrations.RenameField(
-            model_name='randomizationlist',
-            old_name='drug_assignment',
-            new_name='assignment',
+            model_name="randomizationlist",
+            old_name="drug_assignment",
+            new_name="assignment",
         ),
         migrations.AlterField(
-            model_name='randomizationlist',
-            name='allocated_site',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='sites.Site'),
+            model_name="randomizationlist",
+            name="allocated_site",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="+",
+                to="sites.Site",
+            ),
         ),
     ]
