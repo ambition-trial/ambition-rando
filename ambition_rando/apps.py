@@ -4,7 +4,7 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
 from django.core.checks.registry import register
 
-from .system_checks import randomization_list_check
+# from .system_checks import randomization_list_check
 
 
 class AppConfig(DjangoAppConfig):
@@ -15,7 +15,8 @@ class AppConfig(DjangoAppConfig):
     include_in_administration_section = False
 
     def ready(self):
-        register(randomization_list_check)
+        pass
+        # register(randomization_list_check)
 
     @property
     def randomization_list_path(self):

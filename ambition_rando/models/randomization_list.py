@@ -15,7 +15,11 @@ class RandomizationList(RandomizationListModelMixin, BaseUuidModel):
     randomizer_cls = Randomizer
 
     assignment = EncryptedTextField(
-        choices=((SINGLE_DOSE, SINGLE_DOSE_NAME), (CONTROL, CONTROL_NAME))
+        choices=((SINGLE_DOSE, SINGLE_DOSE_NAME), (CONTROL, CONTROL_NAME)),
+    )
+
+    allocation = EncryptedTextField(
+        verbose_name="Original integer allocation", null=True
     )
 
     @property
