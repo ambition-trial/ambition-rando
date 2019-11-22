@@ -18,10 +18,6 @@ class AppConfig(DjangoAppConfig):
         pass
         # register(randomization_list_check)
 
-    @property
-    def randomization_list_path(self):
-        return os.path.join(settings.RANDOMIZATION_LIST_PATH)
-
 
 if settings.APP_NAME == "ambition_rando":
 

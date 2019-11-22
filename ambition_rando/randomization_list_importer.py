@@ -33,7 +33,6 @@ class RandomizationListImporter:
 
     def __init__(self, path=None, verbose=None, overwrite=None, add=None):
         verbose = True if verbose is None else verbose
-        path = path or settings.RANDOMIZATION_LIST_PATH
         path = os.path.expanduser(path)
         RandomizationList = get_randomizationlist_model()
         if overwrite:
