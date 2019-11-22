@@ -1,32 +1,35 @@
-from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic.base import ContextMixin
 from edc_identifier.utils import is_subject_identifier_or_raise
-from edc_randomization.utils import get_randomizationlist_model_name
-
-from ..randomizer import RandomizationListError
+from edc_randomization.randomizer import RandomizationError
+from edc_randomization.site_randomizers import site_randomizers
 
 
 class RandomizationListViewMixin(ContextMixin):
-
-    randomization_list_model = get_randomizationlist_model_name()
-
     @property
     def treatment_description(self):
-        model_cls = django_apps.get_model(self.randomization_list_model)
+        Randomizer = site_randomizers.get("ambition")
         subject_identifier = is_subject_identifier_or_raise(
             self.kwargs.get("subject_identifier")
         )
         try:
-            obj = model_cls.objects.get(subject_identifier=subject_identifier)
+            obj = Randomizer.model_cls().objects.get(
+                subject_identifier=subject_identifier
+            )
         except ObjectDoesNotExist as e:
             current_site = Site.objects.get_current()
-            total = model_cls.objects.filter(site_name=current_site.name).count()
-            available = model_cls.objects.filter(
-                site_name=current_site.name, allocated=False
-            ).count()
-            raise RandomizationListError(
+            total = (
+                Randomizer.model_cls()
+                .objects.filter(site_name=current_site.name)
+                .count()
+            )
+            available = (
+                Randomizer.model_cls()
+                .objects.filter(site_name=current_site.name, allocated=False)
+                .count()
+            )
+            raise RandomizationError(
                 f"Subject {subject_identifier}. "
                 f"Found {available}/{total} available records for {current_site}. Got {e}"
             )
