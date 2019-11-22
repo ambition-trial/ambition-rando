@@ -26,10 +26,15 @@ class RandomizationList(RandomizationListModelMixin, BaseUuidModel):
     @property
     def assignment_description(self):
         if self.assignment == CONTROL:
-            return CONTROL_NAME
+            assignment_description = CONTROL_NAME
         elif self.assignment == SINGLE_DOSE:
-            return SINGLE_DOSE_NAME
-        raise RandomizationError(f"Invalid assignment. Got {self.assignment}")
+            assignment_description = SINGLE_DOSE_NAME
+        else:
+            raise RandomizationError(
+                f"Invalid assignment. Expected one of [{CONTROL}, {SINGLE_DOSE}]. "
+                f"Got `{self.assignment}`"
+            )
+        return assignment_description
 
     class Meta(RandomizationListModelMixin.Meta):
         pass

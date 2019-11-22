@@ -21,8 +21,8 @@ DEFAULT_SETTINGS = DefaultTestSettings(
     SUBJECT_VISIT_MODEL="ambition_subject.subjectvisit",
     SUBJECT_REQUISITION_MODEL="ambition_subject.subjectrequisition",
     EDC_RANDOMIZATION_LIST_MODEL="ambition_rando.randomizationlist",
-    RANDOMIZATION_LIST_PATH=join(
-        base_dir, app_name, "tests", "test_randomization_list.csv"),
+    EDC_RANDOMIZATION_LIST_FILE=join(
+        base_dir, app_name, "tests", "etc", "randomization_list.csv"),
     INSTALLED_APPS=[
         'django.contrib.admin',
         'django.contrib.auth',
