@@ -1,9 +1,10 @@
 from django_crypto_fields.fields import EncryptedTextField
 from edc_model.models import BaseUuidModel
-from edc_randomization.models.model_mixin import RandomizationListModelMixin
+from edc_randomization.models import RandomizationListModelMixin
+from edc_randomization.randomizer import RandomizationError
+from edc_randomization.site_randomizers import site_randomizers
 
 from ..constants import CONTROL, CONTROL_NAME, SINGLE_DOSE, SINGLE_DOSE_NAME
-from ..randomizer import Randomizer, RandomizationError
 
 
 class RandomizationListModelError(Exception):
@@ -12,7 +13,7 @@ class RandomizationListModelError(Exception):
 
 class RandomizationList(RandomizationListModelMixin, BaseUuidModel):
 
-    randomizer_cls = Randomizer
+    randomizer_cls = site_randomizers.get("ambition")
 
     assignment = EncryptedTextField(
         choices=((SINGLE_DOSE, SINGLE_DOSE_NAME), (CONTROL, CONTROL_NAME)),
