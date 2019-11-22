@@ -5,14 +5,15 @@ from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
+from edc_randomization.randomization_list_importer import RandomizationListImporter
 from edc_randomization.utils import get_randomizationlist_model
 from edc_sites import add_or_update_django_sites
 from edc_utils import get_utcnow
 from faker import Faker
 from model_mommy import mommy
 
-from ..randomization_list_importer import RandomizationListImporter
 from ..models import RandomizationList
+from edc_randomization.site_randomizers import site_randomizers
 
 fake = Faker()
 
@@ -24,11 +25,14 @@ class AmbitionTestCaseMixin:
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+
+        site_randomizers._registry = {}
+        site_randomizers.autodiscover()
         add_or_update_django_sites(
             apps=django_apps, sites=ambition_sites, fqdn=fqdn, verbose=False
         )
         if cls.import_randomization_list:
-            RandomizationListImporter(verbose=False)
+            RandomizationListImporter(name="default", verbose=False)
         import_holidays(test=True)
 
     @classmethod

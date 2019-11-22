@@ -5,18 +5,26 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, tag
 from django.test.utils import override_settings
 from edc_registration.models import RegisteredSubject
+from edc_randomization.randomization_list_importer import RandomizationListImporter
 from edc_randomization.utils import (
     get_randomizationlist_model,
     get_randomizationlist_model_name,
 )
+from edc_randomization.randomization_list_verifier import (
+    RandomizationListVerifier,
+    RandomizationListError,
+)
+from edc_randomization.randomizer import (
+    RandomizationError,
+    AllocationError,
+    AlreadyRandomized,
+    InvalidAssignment,
+)
+from edc_randomization.site_randomizers import site_randomizers
 from random import shuffle
 from tempfile import mkdtemp
 
-from ..randomization_list_importer import RandomizationListImporter
-from ..randomization_list_verifier import RandomizationListVerifier
-from ..randomizer import RandomizationError, AllocationError
-from ..randomizer import Randomizer, RandomizationListError, AlreadyRandomized
-from ..utils import InvalidDrugAssignment
+from ..randomizer import Randomizer
 from .ambition_test_case_mixin import AmbitionTestCaseMixin
 from .make_test_list import make_test_list
 from .models import SubjectConsent
@@ -28,65 +36,84 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
 
     import_randomization_list = False
 
+    def setUp(self):
+        super().setUp()
+        site_randomizers._registry = {}
+        site_randomizers.register(Randomizer)
+
     def populate_list(self, site_names=None, per_site=None):
-        path = make_test_list(
-            site_names=site_names or self.site_names, per_site=per_site
+        make_test_list(
+            site_names=site_names or self.site_names,
+            per_site=per_site,
+            full_path=settings.EDC_RANDOMIZATION_LIST_FILE,
         )
-        RandomizationListImporter(path=path, overwrite=True)
+        RandomizationListImporter(name="ambition", overwrite=True)
 
     @override_settings(SITE_ID=40)
     def test_with_consent_no_site(self):
-        subject_consent = SubjectConsent.objects.create(subject_identifier="12345")
+        self.populate_list()
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", user_created="erikvw"
+        )
         self.assertRaises(
-            RandomizationListError,
-            Randomizer,
+            RandomizationError,
+            site_randomizers.get("ambition"),
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
-            site=subject_consent.site,
-            user=subject_consent.user_modified,
+            site=None,
+            user=subject_consent.user_created,
         )
 
     @override_settings(SITE_ID=40)
-    def test_with_consent(self):
+    def test_with_consent_ok(self):
+        self.populate_list()
         site = Site.objects.get_current()
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345", site=site
+            subject_identifier="12345", site=site, user_created="erikvw"
         )
-        self.assertRaises(
-            RandomizationListError,
-            Randomizer,
+        site_randomizers.get("ambition")(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
 
-    @override_settings(SITE_ID=40)
+    @override_settings(
+        SITE_ID=40,
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv"),
+    )
     def test_with_list_selects_first(self):
         self.populate_list()
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
         first_obj = RandomizationList.objects.all().first()
-        subject_consent = SubjectConsent.objects.create(subject_identifier="12345")
-        rando = Randomizer(
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", user_created="erikvw"
+        )
+        rando = site_randomizers.get("ambition")(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
         self.assertEqual(rando.sid, first_obj.sid)
 
-    @override_settings(SITE_ID=40)
+    @override_settings(
+        SITE_ID=40,
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv"),
+    )
     def test_updates_registered_subject(self):
         self.populate_list()
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
-        subject_consent = SubjectConsent.objects.create(subject_identifier="12345")
-        Randomizer(
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", user_created="erikvw"
+        )
+        site_randomizers.get("ambition")(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
         first_obj = RandomizationList.objects.all().first()
         rs = RegisteredSubject.objects.get(subject_identifier="12345")
@@ -94,100 +121,123 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
         self.assertEqual(rs.sid, str(first_obj.sid))
         self.assertEqual(rs.randomization_datetime, first_obj.allocated_datetime)
 
-    @override_settings(SITE_ID=40)
+    @override_settings(
+        SITE_ID=40,
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv"),
+    )
     def test_updates_list_obj_as_allocated(self):
         self.populate_list()
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
         RandomizationList.objects.all().first()
-        subject_consent = SubjectConsent.objects.create(subject_identifier="12345")
-        Randomizer(
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", user_created="erikvw"
+        )
+        site_randomizers.get("ambition")(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
         first_obj = RandomizationList.objects.all().first()
         self.assertEqual(first_obj.subject_identifier, "12345")
         self.assertTrue(first_obj.allocated)
         self.assertIsNotNone(first_obj.allocated_user)
-        self.assertEqual(first_obj.allocated_user, subject_consent.user_modified)
+        self.assertEqual(first_obj.allocated_user, subject_consent.user_created)
         self.assertEqual(first_obj.allocated_datetime, subject_consent.consent_datetime)
-        self.assertGreater(first_obj.modified, subject_consent.created)
+        self.assertGreater(first_obj.modified, subject_consent.modified)
 
-    @override_settings(SITE_ID=40)
+    @override_settings(
+        SITE_ID=40,
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv"),
+    )
     def test_cannot_rerandomize(self):
         self.populate_list()
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
         first_obj = RandomizationList.objects.all().first()
-        subject_consent = SubjectConsent.objects.create(subject_identifier="12345")
-        rando = Randomizer(
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", user_created="erikvw"
+        )
+        rando = site_randomizers.get("ambition")(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
         self.assertEqual(rando.sid, first_obj.sid)
         self.assertRaises(
             AlreadyRandomized,
-            Randomizer,
+            site_randomizers.get("ambition"),
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
 
-    @override_settings(SITE_ID=40)
+    @override_settings(
+        SITE_ID=40,
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv"),
+    )
     def test_error_condition1(self):
         """Assert raises if RegisteredSubject not updated correctly.
         """
         self.populate_list()
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
-        subject_consent = SubjectConsent.objects.create(subject_identifier="12345")
-        rando = Randomizer(
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", user_created="erikvw"
+        )
+        rando = site_randomizers.get("ambition")(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
         rando.registered_subject.sid = None
         rando.registered_subject.save()
         with self.assertRaises(AlreadyRandomized) as cm:
-            Randomizer(
+            site_randomizers.get("ambition")(
                 subject_identifier=subject_consent.subject_identifier,
                 report_datetime=subject_consent.consent_datetime,
                 site=subject_consent.site,
-                user=subject_consent.user_modified,
+                user=subject_consent.user_created,
             )
         self.assertEqual(cm.exception.code, get_randomizationlist_model_name())
 
-    @override_settings(SITE_ID=40)
+    @override_settings(
+        SITE_ID=40,
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv"),
+    )
     def test_error_condition2(self):
         """Assert raises if RandomizationList not updated correctly.
         """
         self.populate_list()
         site = Site.objects.get_current()
         RandomizationList.objects.update(site_name=site.name)
-        subject_consent = SubjectConsent.objects.create(subject_identifier="12345")
-        rando = Randomizer(
+        subject_consent = SubjectConsent.objects.create(
+            subject_identifier="12345", user_created="erikvw"
+        )
+        rando = site_randomizers.get("ambition")(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
         rando.registered_subject.sid = None
         rando.registered_subject.save()
         with self.assertRaises(AlreadyRandomized) as cm:
-            Randomizer(
+            site_randomizers.get("ambition")(
                 subject_identifier=subject_consent.subject_identifier,
                 report_datetime=subject_consent.consent_datetime,
                 site=subject_consent.site,
-                user=subject_consent.user_modified,
+                user=subject_consent.user_created,
             )
         self.assertEqual(cm.exception.code, get_randomizationlist_model_name())
 
+    @override_settings(
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv")
+    )
     def test_error_condition3(self):
         """Assert raises if RandomizationList not updated correctly.
         """
@@ -195,58 +245,67 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
         site = Site.objects.get(name="gaborone")
         RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345", site=site
+            subject_identifier="12345", site=site, user_created="erikvw"
         )
-        Randomizer(
+        site_randomizers.get("ambition")(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
         RandomizationList.objects.update(subject_identifier=None)
         with self.assertRaises(AlreadyRandomized) as cm:
-            Randomizer(
+            site_randomizers.get("ambition")(
                 subject_identifier=subject_consent.subject_identifier,
                 report_datetime=subject_consent.consent_datetime,
                 site=subject_consent.site,
-                user=subject_consent.user_modified,
+                user=subject_consent.user_created,
             )
         self.assertEqual(cm.exception.code, "edc_registration.registeredsubject")
 
+    @override_settings(
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv")
+    )
     def test_subject_does_not_exist(self):
         self.populate_list()
         site = Site.objects.get(name="gaborone")
         RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345", site=site
+            subject_identifier="12345", site=site, user_created="erikvw"
         )
         RegisteredSubject.objects.all().delete()
         self.assertRaises(
             RandomizationError,
-            Randomizer,
+            site_randomizers.get("ambition"),
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
 
+    @override_settings(
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv")
+    )
     def test_str(self):
         self.populate_list()
         site = Site.objects.get(name="gaborone")
         RandomizationList.objects.update(site_name=site.name)
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier="12345", site=site
+            subject_identifier="12345", site=site, user_created="erikvw"
         )
-        Randomizer(
+        site_randomizers.get("ambition")(
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
         obj = RandomizationList.objects.all().first()
         self.assertTrue(str(obj))
 
-    @override_settings(SITE_ID=40)
+    @override_settings(
+        SITE_ID=40,
+        EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randomizationlist.csv"),
+    )
     def test_for_sites(self):
         """Assert that allocates by site correctly.
         """
@@ -259,13 +318,13 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
         for index, site_name in enumerate(site_names):
             site = Site.objects.get(name=site_name)
             subject_consent = SubjectConsent.objects.create(
-                subject_identifier=f"12345{index}", site=site
+                subject_identifier=f"12345{index}", site=site, user_created="erikvw"
             )
-            Randomizer(
+            site_randomizers.get("ambition")(
                 subject_identifier=subject_consent.subject_identifier,
                 report_datetime=subject_consent.consent_datetime,
                 site=subject_consent.site,
-                user=subject_consent.user_modified,
+                user=subject_consent.user_created,
             )
         # assert consented subjects were allocated SIDs in the
         # correct order per site.
@@ -292,54 +351,66 @@ class TestRandomizer(AmbitionTestCaseMixin, TestCase):
 
         # assert raises on next attempt to randomize
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=f"ABCDEF", site=site
+            subject_identifier=f"ABCDEF", site=site, user_created="erikvw"
         )
         self.assertRaises(
             AllocationError,
-            Randomizer,
+            site_randomizers.get("ambition"),
             subject_identifier=subject_consent.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
             site=subject_consent.site,
-            user=subject_consent.user_modified,
+            user=subject_consent.user_created,
         )
 
     @override_settings(SITE_ID=40, RANDOMIZTION_LIST_PATH="/tmp/erik.csv")
     def test_invalid_path(self):
-        message = RandomizationListVerifier().message
-        self.assertIn("Randomization list has not been loaded.", message)
+        with self.assertRaises(RandomizationListError) as cm:
+            RandomizationListVerifier(randomizer_name="ambition").message
+        self.assertIn("Randomization list has not been loaded.", str(cm.exception))
 
     @override_settings(
-        SITE_ID=40, RANDOMIZATION_LIST_PATH=os.path.join(mkdtemp(), "randolist.csv")
+        SITE_ID=40, EDC_RANDOMIZATION_LIST_FILE=os.path.join(mkdtemp(), "randolist.csv")
     )
     def test_invalid_assignment(self):
         # change to a different assignments
         assignments = [100, 101]
         make_test_list(
-            full_path=settings.RANDOMIZATION_LIST_PATH,
+            full_path=settings.EDC_RANDOMIZATION_LIST_FILE,
             site_names=self.site_names,
             assignments=assignments,
             count=5,
         )
-        self.assertRaises(InvalidDrugAssignment, RandomizationListImporter)
+        self.assertRaises(InvalidAssignment, RandomizationListImporter, name="ambition")
 
     @override_settings(SITE_ID=40)
     def test_invalid_sid(self):
         # change to a different starting SID
-        RandomizationListImporter()
+        RandomizationListImporter(name="ambition")
         obj = RandomizationList.objects.all().order_by("sid").first()
         obj.sid = 100
         obj.save()
-        message = RandomizationListVerifier().message
-        self.assertIn("Randomization list is invalid", message or "")
+        with self.assertRaises(RandomizationListError) as cm:
+            RandomizationListVerifier(randomizer_name="ambition")
+        self.assertIn("Randomization list has invalid SIDs", str(cm.exception))
 
     @override_settings(SITE_ID=40)
     def test_invalid_count(self):
+        Randomizer.model_cls().objects.all().delete()
         site = Site.objects.get_current()
+        RandomizationListImporter(name="ambition")
         # change number of SIDs in DB
-        RandomizationListImporter()
-        RandomizationList.objects.create(
+        self.assertEqual(Randomizer.model_cls().objects.all().count(), 50)
+        Randomizer.model_cls().objects.create(
             sid=100, assignment="single_dose", site_name=site.name
         )
-        self.assertEqual(RandomizationList.objects.all().count(), 41)
-        message = RandomizationListVerifier().message
-        self.assertIn("Randomization list count is off", message)
+        self.assertEqual(Randomizer.model_cls().objects.all().count(), 51)
+        self.assertRaises(
+            RandomizationListError,
+            RandomizationListVerifier,
+            randomizer_name="ambition",
+        )
+        with self.assertRaises(RandomizationListError) as cm:
+            RandomizationListVerifier(randomizer_name="ambition")
+        self.assertIn(
+            "Randomization list count is off. Expected 51. Got 50", str(cm.exception)
+        )
