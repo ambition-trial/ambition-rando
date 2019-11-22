@@ -57,6 +57,7 @@ class AmbitionTestCaseMixin:
             screening_identifier=subject_screening.screening_identifier,
             consent_datetime=consent_datetime,
             first_name=first_name,
+            user_created="erikvw",
         )
         return consent.subject_identifier
 
