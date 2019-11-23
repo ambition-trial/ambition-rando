@@ -1,6 +1,5 @@
 from ambition_sites import ambition_sites, fqdn
 from ambition_rando.constants import SINGLE_DOSE, CONTROL
-from ambition_rando.utils import get_assignment
 from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from edc_facility.import_holidays import import_holidays
@@ -67,7 +66,7 @@ class AmbitionTestCaseMixin:
         for _ in range(0, 4):
             subject_identifier = self.create_subject()
             obj = RandomizationList.objects.get(subject_identifier=subject_identifier)
-            if get_assignment({"assignment": obj.assignment}) == assignment:
+            if Randomizer.get_assignment({"assignment": obj.assignment}) == assignment:
                 return subject_identifier
         return None
 
